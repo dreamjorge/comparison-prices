@@ -1,5 +1,8 @@
 # UX flow (MVP)
 
+## Status
+- Drafted (text-only). Needs low-fidelity wireframe export to PDF/images.
+
 ## Screens
 1) Home (Shopping list)
 2) Compare (Totals by store)

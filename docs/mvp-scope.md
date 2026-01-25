@@ -1,5 +1,8 @@
 # MVP scope
 
+## Status
+- Drafted. Needs validation with stakeholders and KPIs.
+
 ## P0 (MVP)
 - Shopping list CRUD (name, qty, unit)
 - Compare totals by store (cheapest first)

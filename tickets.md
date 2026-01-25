@@ -1,5 +1,11 @@
 # 📋 Backlog de Tickets — Android App Comparador de Precios (LATAM)
 
+## Status summary (2026-01-25)
+- TICKET 0.1: Drafted in `docs/mvp-scope.md`
+- TICKET 0.2: Drafted in `docs/wireframes/ux-flow.md` + `docs/wireframes/notes.md`
+- TICKET 1.1: Scaffold created in `app-android/` (needs build validation)
+- TICKET 1.2+: Pending
+
 ## Epic 0 — Preparación del proyecto
 ---
 

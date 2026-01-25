@@ -3,6 +3,12 @@
 ## Goal
 Build MVP for a LATAM grocery list price comparator app.
 
+## Current status (2026-01-25)
+- UX flow + wireframe notes drafted
+- MVP scope drafted
+- Android base scaffold created (Compose + Room + Hilt + WorkManager + Navigation)
+- Gradle wrapper jar missing (needs generation/download)
+
 ## MVP scope (P0)
 - Shopping list CRUD (name, qty, unit)
 - Compare totals by store, cheapest first
@@ -33,3 +39,9 @@ Build MVP for a LATAM grocery list price comparator app.
 - Keep offline-first. No backend required for MVP.
 - Use only metadata + price snapshots.
 - Avoid copying full catalogs from sources.
+
+## Next steps (pick up)
+1) Generate Gradle wrapper jar and verify `./gradlew :app:tasks` runs
+2) Implement TICKET 1.2: Room models/DAOs migrations + basic repository layer
+3) Implement TICKET 2.1: shopping list CRUD UI + local persistence
+4) Create mock dataset docs + loader (TICKET 3.1)
