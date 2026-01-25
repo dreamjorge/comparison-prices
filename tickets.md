@@ -1,0 +1,334 @@
+# 📋 Backlog de Tickets — Android App Comparador de Precios (LATAM)
+
+## Epic 0 — Preparación del proyecto
+---
+
+### TICKET 0.1 — Definir alcance del MVP
+**Tipo:** Task  
+**Prioridad:** P0  
+**Owner:** Agent 1 (Product)
+
+**Descripción**
+Definir exactamente qué entra y qué NO entra en el MVP para evitar scope creep.
+
+**Criterios de aceptación**
+- Documento con features P0 / P1 / P2
+- Definición clara de público objetivo (LATAM)
+- Definición de modelo Free vs Pro
+
+---
+
+### TICKET 0.2 — Wireframes y flujo UX
+**Tipo:** Design  
+**Prioridad:** P0  
+**Owner:** Agent 1 (UX)
+
+**Descripción**
+Diseñar wireframes de las pantallas clave.
+
+**Pantallas**
+- Home (lista de compras)
+- Comparador por tienda
+- Detalle de producto
+- Configuración (zona / tiendas)
+- Paywall
+
+**Criterios de aceptación**
+- Wireframes en Figma o PDF
+- Flujo completo documentado
+- Ubicación clara de ads permitidos
+
+---
+
+## Epic 1 — Base Android
+---
+
+### TICKET 1.1 — Crear proyecto Android base
+**Tipo:** Task  
+**Prioridad:** P0  
+**Owner:** Agent 2 (Android)
+
+**Descripción**
+Inicializar proyecto Android moderno.
+
+**Requisitos**
+- Kotlin
+- Jetpack Compose
+- Room
+- Hilt
+- Material 3
+
+**Criterios de aceptación**
+- Proyecto compila
+- Navegación básica funcionando
+- Arquitectura limpia (UI / Domain / Data)
+
+---
+
+### TICKET 1.2 — Modelos de datos locales
+**Tipo:** Task  
+**Prioridad:** P0  
+**Owner:** Agent 2
+
+**Descripción**
+Definir entidades de base de datos.
+
+**Entidades**
+- Product
+- Store
+- PriceSnapshot
+- ShoppingList
+- ListItem
+
+**Criterios de aceptación**
+- Room entities creadas
+- DAOs funcionales
+- Migraciones definidas
+
+---
+
+## Epic 2 — Lógica de negocio
+---
+
+### TICKET 2.1 — Crear y editar lista de compras
+**Tipo:** Feature  
+**Prioridad:** P0  
+**Owner:** Agent 2
+
+**Descripción**
+El usuario puede crear y editar una lista de compras.
+
+**Criterios de aceptación**
+- Agregar / eliminar productos
+- Cambiar cantidad
+- Persistencia local
+- UX fluido
+
+---
+
+### TICKET 2.2 — Comparador de precios por tienda
+**Tipo:** Feature  
+**Prioridad:** P0  
+**Owner:** Agent 2
+
+**Descripción**
+Calcular el total de la lista por tienda.
+
+**Criterios de aceptación**
+- Mostrar total por tienda
+- Ordenar de más barato a más caro
+- Mostrar ahorro vs segunda opción
+
+---
+
+### TICKET 2.3 — Historial de precios
+**Tipo:** Feature  
+**Prioridad:** P0  
+**Owner:** Agent 2
+
+**Descripción**
+Mostrar evolución del precio de un producto.
+
+**Criterios de aceptación**
+- Historial mínimo 7 días
+- Gráfica simple
+- Funciona offline
+
+---
+
+## Epic 3 — Datos y normalización
+---
+
+### TICKET 3.1 — Dataset mock LATAM
+**Tipo:** Task  
+**Prioridad:** P0  
+**Owner:** Agent 3 (Data)
+
+**Descripción**
+Crear dataset de prueba realista.
+
+**Requisitos**
+- 200+ productos
+- 3–4 supermercados
+- Variaciones de precios
+
+**Criterios de aceptación**
+- Dataset usable en app
+- Datos coherentes (unidades, marcas)
+
+---
+
+### TICKET 3.2 — Normalización de productos
+**Tipo:** Feature  
+**Prioridad:** P1  
+**Owner:** Agent 3
+
+**Descripción**
+Unificar productos similares entre tiendas.
+
+**Criterios de aceptación**
+- Normalización por tamaño/unidad
+- Matching básico por nombre
+- Documentación del algoritmo
+
+---
+
+## Epic 4 — Matching avanzado (opcional Rust)
+---
+
+### TICKET 4.1 — Fuzzy matching de productos
+**Tipo:** Feature  
+**Prioridad:** P1  
+**Owner:** Agent 4 (Rust)
+
+**Descripción**
+Implementar fuzzy matching para productos equivalentes.
+
+**Criterios de aceptación**
+- Devuelve ranking de candidatos
+- Score visible
+- Casos reales LATAM probados
+
+---
+
+## Epic 5 — Alertas y automatización
+---
+
+### TICKET 5.1 — Alertas locales de precios
+**Tipo:** Feature  
+**Prioridad:** P0  
+**Owner:** Agent 2
+
+**Descripción**
+Notificar cuando un producto baja de precio.
+
+**Criterios de aceptación**
+- Usa WorkManager
+- Alertas configurables
+- No requiere backend
+
+---
+
+### TICKET 5.2 — Alertas de “lista más barata”
+**Tipo:** Feature  
+**Prioridad:** P1  
+**Owner:** Agent 2
+
+**Descripción**
+Avisar si otra tienda se vuelve la mejor opción.
+
+**Criterios de aceptación**
+- Comparación automática
+- Notificación clara
+- Respeta frecuencia
+
+---
+
+## Epic 6 — Monetización
+---
+
+### TICKET 6.1 — Integración AdMob banner
+**Tipo:** Feature  
+**Prioridad:** P0  
+**Owner:** Agent 5
+
+**Descripción**
+Agregar banner pequeño en versión Free.
+
+**Criterios de aceptación**
+- Solo pantallas pasivas
+- No interrumpe acciones
+- Cumple políticas Play Store
+
+---
+
+### TICKET 6.2 — Rewarded ads
+**Tipo:** Feature  
+**Prioridad:** P1  
+**Owner:** Agent 5
+
+**Descripción**
+Desbloquear features temporales con ads.
+
+**Ejemplos**
+- Historial completo 24h
+- Comparar más tiendas
+
+**Criterios de aceptación**
+- Usuario inicia el ad
+- Desbloqueo temporal correcto
+
+---
+
+### TICKET 6.3 — Paywall Pro (sin ads)
+**Tipo:** Feature  
+**Prioridad:** P0  
+**Owner:** Agent 5
+
+**Descripción**
+Implementar versión Pro.
+
+**Criterios de aceptación**
+- Compra funcional
+- Ads desactivados
+- Features Pro habilitados
+
+---
+
+## Epic 7 — Calidad y Release
+---
+
+### TICKET 7.1 — QA funcional
+**Tipo:** Task  
+**Prioridad:** P0  
+**Owner:** Agent 6 (QA)
+
+**Descripción**
+Pruebas funcionales completas.
+
+**Criterios de aceptación**
+- No crashes
+- Flujos principales OK
+- Performance aceptable
+
+---
+
+### TICKET 7.2 — Checklist Play Store
+**Tipo:** Task  
+**Prioridad:** P0  
+**Owner:** Agent 6
+
+**Descripción**
+Preparar todo para publicación.
+
+**Incluye**
+- Data Safety
+- Política de ads
+- Screenshots
+- Descripción
+
+---
+
+### TICKET 7.3 — Build AAB + beta
+**Tipo:** Task  
+**Prioridad:** P0  
+**Owner:** Agent 6
+
+**Descripción**
+Generar AAB y subir a beta interna.
+
+**Criterios de aceptación**
+- AAB válido
+- Beta activa
+- Crash reporting habilitado
+
+---
+
+## 🎯 Definición de “Done” del MVP
+- Usuario puede comparar su lista en varias tiendas
+- Alertas funcionando
+- Monetización activa
+- App estable en beta
+- Lista para Play Store
+
+---
