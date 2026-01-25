@@ -1,5 +1,10 @@
 # Plan de desarrollo (multi-agent) — Android App: Comparador de precios por lista de súper (LATAM)
 
+## Status update (2026-01-25)
+- Agent 1 outputs drafted: `docs/mvp-scope.md`, `docs/wireframes/ux-flow.md`, `docs/wireframes/notes.md`
+- Agent 2 started: Android scaffold in `app-android/` (needs build validation + feature work)
+- Agents 3–6 pending
+
 ## Objetivo del MVP
 - El usuario crea una **lista de productos** (texto o escaneo de código de barras).
 - La app calcula **total por tienda** y muestra **dónde sale más barato**.

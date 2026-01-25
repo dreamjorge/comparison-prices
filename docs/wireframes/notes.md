@@ -1,5 +1,8 @@
 # Wireframe notes
 
+## Status
+- Drafted (text-only). Needs low-fidelity wireframe export to PDF/images.
+
 ## Home (list)
 - Header: app name + zone chip
 - Primary list: items with qty, unit, last price
