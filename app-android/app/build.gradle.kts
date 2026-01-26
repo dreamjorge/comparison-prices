@@ -57,6 +57,7 @@ dependencies {
   implementation(libs.compose.ui.tooling.preview)
   implementation(libs.compose.material3)
   implementation(libs.compose.icons.extended)
+  implementation(libs.material)
 
   implementation(libs.room.runtime)
   implementation(libs.room.ktx)
