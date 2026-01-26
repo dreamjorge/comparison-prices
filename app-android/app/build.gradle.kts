@@ -37,10 +37,6 @@ android {
     targetCompatibility = JavaVersion.VERSION_17
   }
 
-  kotlinOptions {
-    jvmTarget = "17"
-  }
-
   packaging {
     resources {
       excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -61,6 +57,7 @@ dependencies {
   implementation(libs.compose.ui.tooling.preview)
   implementation(libs.compose.material3)
   implementation(libs.compose.icons.extended)
+  implementation(libs.material)
 
   implementation(libs.room.runtime)
   implementation(libs.room.ktx)
