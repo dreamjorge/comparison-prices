@@ -9,5 +9,5 @@
   - `./scripts/run-ci-local.sh`
 
 ## Notes
-- CI uses Gradle 9.1.0 and Android SDK API 33 / build-tools 33.0.2.
+- CI uses Gradle 9.1.0 and Android SDK API 36 / build-tools 36.0.0.
 - Prefer updating this file when CI requirements change so agents stay aligned.
