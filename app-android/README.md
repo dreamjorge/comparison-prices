@@ -29,6 +29,11 @@
    ./scripts/container-ci.sh
    ```
 
+## VS Code dev container
+1. Open the `app-android` folder in VS Code.
+2. Run **Dev Containers: Reopen in Container**.
+   - The configuration lives at `.devcontainer/devcontainer.json` and uses the Dockerfile in `container/`.
+
 ## Build an APK locally
 ```bash
 gradle :app:assembleDebug
