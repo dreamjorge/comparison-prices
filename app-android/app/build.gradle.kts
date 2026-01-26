@@ -7,12 +7,12 @@ plugins {
 
 android {
   namespace = "com.compareprices"
-  compileSdk = 35
+  compileSdk = 34
 
   defaultConfig {
     applicationId = "com.compareprices"
     minSdk = 24
-    targetSdk = 35
+    targetSdk = 34
     versionCode = 1
     versionName = "0.1.0"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
