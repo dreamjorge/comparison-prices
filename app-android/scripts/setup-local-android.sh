@@ -26,8 +26,8 @@ if [[ ! -d "$SDK_PATH" ]]; then
 fi
 
 if command -v sdkmanager >/dev/null 2>&1; then
-  echo "==> Ensuring Android SDK packages (api 33, build-tools 33.0.2)"
-  sdkmanager --install "platforms;android-33" "build-tools;33.0.2"
+  echo "==> Ensuring Android SDK packages (api 36, build-tools 36.0.0)"
+  sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
 else
   echo "sdkmanager not found; skipping SDK package install."
   echo "Install 'cmdline-tools' and rerun if your SDK is missing packages."

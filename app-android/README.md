@@ -41,5 +41,5 @@ gradle :app:assembleDebug
 The debug APK will be at `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Notes
-- CI uses Gradle 9.1.0 and Android SDK API 33 / build-tools 33.0.2.  
+- CI uses Gradle 9.1.0 and Android SDK API 36 / build-tools 36.0.0.  
 - If you need to update SDK packages, re-run the setup script (it uses `sdkmanager` when available).
