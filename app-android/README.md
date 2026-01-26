@@ -13,6 +13,28 @@
 ./scripts/run-ci-local.sh
 ```
 
+## Container workflow (no local SDK required)
+1. Build the Android container image:
+   ```bash
+   ./scripts/container-setup.sh
+   ```
+2. Optional: open a shell inside the container:
+   ```bash
+   ./scripts/container-shell.sh
+   ```
+3. Run checks and builds inside the container:
+   ```bash
+   ./scripts/container-test.sh
+   ./scripts/container-build-apk.sh
+   ./scripts/container-ci.sh
+   ```
+
+## Build an APK locally
+```bash
+gradle :app:assembleDebug
+```
+The debug APK will be at `app/build/outputs/apk/debug/app-debug.apk`.
+
 ## Notes
 - CI uses Gradle 9.1.0 and Android SDK API 36 / build-tools 36.0.0.  
 - If you need to update SDK packages, re-run the setup script (it uses `sdkmanager` when available).

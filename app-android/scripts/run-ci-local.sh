@@ -11,7 +11,7 @@ elif command -v gradle >/dev/null 2>&1; then
   GRADLE_CMD=(gradle)
 else
   echo "Gradle is required to run CI locally."
-  echo "Install Gradle 9.1.0 or add the wrapper jar at $WRAPPER_JAR."
+  echo "Install Gradle 9.1.0 or generate the wrapper jar locally."
   exit 1
 fi
 
