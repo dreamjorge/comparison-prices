@@ -18,7 +18,7 @@ RUN mkdir -p $ANDROID_SDK_ROOT/cmdline-tools \
   && rm /tmp/cmdline-tools.zip
 
 RUN yes | sdkmanager --licenses
-RUN sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+RUN sdkmanager --install "platforms;android-35" "build-tools;35.0.0" "platform-tools"
 
 RUN curl -sSLo /tmp/gradle.zip https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
   && unzip -q /tmp/gradle.zip -d /opt/gradle \
