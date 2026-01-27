@@ -179,6 +179,22 @@ Unificar productos similares entre tiendas.
 
 ---
 
+### TICKET 3.3 — Fetch de precios reales (proveedores web/API)
+**Tipo:** Feature  
+**Prioridad:** P1  
+**Owner:** Agent 3 (Data) + Agent 2 (Android)
+
+**Descripción**
+Integrar una fuente real de precios (API o feed permitido) para reemplazar datos mock en el comparador.
+
+**Criterios de aceptación**
+- Conector a una fuente con permisos explícitos (API/feeds)
+- Endpoint o repositorio de datos consumible por la app
+- Sin scraping no autorizado
+- Documentación de límites de uso y actualización
+
+---
+
 ## Epic 4 — Matching avanzado (opcional Rust)
 ---
 
