@@ -1,5 +1,8 @@
 # Plan de desarrollo (multi-agent) — Android App: Comparador de precios por lista de súper (LATAM)
 
+## Status update (2026-02-01)
+- Agent 2 added: Compare screen sorts stores by total price, highlights the cheapest option, includes unit tests for price parsing/sorting, and now includes Walmart demo pricing data for real-supermarket search context.
+
 ## Status update (2026-01-25)
 - Agent 1 outputs drafted: `docs/mvp-scope.md`, `docs/wireframes/ux-flow.md`, `docs/wireframes/notes.md`
 - Agent 2 started: Android scaffold in `app-android/` (needs build validation + feature work)
