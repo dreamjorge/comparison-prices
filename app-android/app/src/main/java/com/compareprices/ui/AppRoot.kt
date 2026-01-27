@@ -1,6 +1,5 @@
 package com.compareprices.ui
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -14,13 +13,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.compareprices.ui.home.HomeScreen
 
 private sealed class Screen(val route: String, val label: String) {
   data object Home : Screen("home", "Lista")
@@ -77,11 +76,6 @@ fun AppRoot() {
 }
 
 @Composable
-private fun HomeScreen() {
-  PlaceholderScreen(label = "Home - Lista de compras")
-}
-
-@Composable
 private fun CompareScreen() {
   PlaceholderScreen(label = "Comparador por tienda")
 }
@@ -93,7 +87,10 @@ private fun SettingsScreen() {
 
 @Composable
 private fun PlaceholderScreen(label: String) {
-  Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+  androidx.compose.foundation.layout.Box(
+    modifier = Modifier.fillMaxSize(),
+    contentAlignment = androidx.compose.ui.Alignment.Center
+  ) {
     Text(text = label)
   }
 }

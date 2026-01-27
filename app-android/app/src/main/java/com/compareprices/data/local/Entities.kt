@@ -1,8 +1,10 @@
 package com.compareprices.data.local
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import androidx.room.Relation
 
 @Entity(tableName = "products")
 data class ProductEntity(
@@ -52,4 +54,20 @@ data class ListItemEntity(
   val productId: Long,
   val quantity: Double,
   val unit: String
+)
+
+data class ListItemWithProduct(
+  @Embedded val item: ListItemEntity,
+  @Relation(parentColumn = "productId", entityColumn = "id")
+  val product: ProductEntity
+)
+
+data class ShoppingListWithItems(
+  @Embedded val list: ShoppingListEntity,
+  @Relation(
+    entity = ListItemEntity::class,
+    parentColumn = "id",
+    entityColumn = "listId"
+  )
+  val items: List<ListItemWithProduct>
 )

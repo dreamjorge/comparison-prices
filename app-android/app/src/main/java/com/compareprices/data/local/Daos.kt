@@ -4,6 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProductDao {
@@ -12,6 +14,9 @@ interface ProductDao {
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun upsertAll(items: List<ProductEntity>)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insertAll(items: List<ProductEntity>): List<Long>
 }
 
 @Dao
@@ -39,6 +44,13 @@ interface ShoppingListDao {
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun upsert(item: ShoppingListEntity): Long
+
+  @Query("SELECT COUNT(*) FROM shopping_lists")
+  suspend fun count(): Int
+
+  @Transaction
+  @Query("SELECT * FROM shopping_lists ORDER BY createdAt DESC LIMIT 1")
+  fun observeLatestList(): Flow<ShoppingListWithItems?>
 }
 
 @Dao
