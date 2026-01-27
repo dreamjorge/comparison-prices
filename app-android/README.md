@@ -40,6 +40,11 @@ gradle :app:assembleDebug
 ```
 The debug APK will be at `app/build/outputs/apk/debug/app-debug.apk`.
 
+## Feature notes
+- Home now seeds a demo shopping list (3 items) so the app is immediately inspectable.
+- Compare includes a searchable list of mock supermarket prices and totals.
+- Unit tests for Compare filtering live under `app/src/test`.
+
 ## Notes
 - CI uses Gradle 9.1.0 and Android SDK API 36 / build-tools 36.0.0.  
 - If you need to update SDK packages, re-run the setup script (it uses `sdkmanager` when available).

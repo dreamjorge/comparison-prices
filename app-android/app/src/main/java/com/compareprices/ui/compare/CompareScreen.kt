@@ -31,11 +31,7 @@ fun CompareScreen() {
   val storePrices = remember { demoStorePrices() }
   var query by rememberSaveable { mutableStateOf("") }
 
-  val filteredStores = storePrices.filter { store ->
-    val matchesStore = store.storeName.contains(query, ignoreCase = true)
-    val matchesItem = store.items.any { it.product.contains(query, ignoreCase = true) }
-    query.isBlank() || matchesStore || matchesItem
-  }
+  val filteredStores = filterStorePrices(query, storePrices)
 
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
@@ -129,19 +125,19 @@ private fun StorePriceCard(store: StorePrice) {
   }
 }
 
-private data class StorePrice(
+internal data class StorePrice(
   val storeName: String,
   val zone: String,
   val totalLabel: String,
   val items: List<StoreItemPrice>
 )
 
-private data class StoreItemPrice(
+internal data class StoreItemPrice(
   val product: String,
   val price: String
 )
 
-private fun demoStorePrices(): List<StorePrice> {
+internal fun demoStorePrices(): List<StorePrice> {
   return listOf(
     StorePrice(
       storeName = "Super Norte",
@@ -174,4 +170,17 @@ private fun demoStorePrices(): List<StorePrice> {
       )
     )
   )
+}
+
+internal fun filterStorePrices(query: String, storePrices: List<StorePrice>): List<StorePrice> {
+  val trimmedQuery = query.trim()
+  if (trimmedQuery.isEmpty()) {
+    return storePrices
+  }
+
+  return storePrices.filter { store ->
+    val matchesStore = store.storeName.contains(trimmedQuery, ignoreCase = true)
+    val matchesItem = store.items.any { it.product.contains(trimmedQuery, ignoreCase = true) }
+    matchesStore || matchesItem
+  }
 }

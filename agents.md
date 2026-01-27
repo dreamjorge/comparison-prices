@@ -3,6 +3,7 @@
 ## Status update (2026-01-25)
 - Agent 1 outputs drafted: `docs/mvp-scope.md`, `docs/wireframes/ux-flow.md`, `docs/wireframes/notes.md`
 - Agent 2 started: Android scaffold in `app-android/` (needs build validation + feature work)
+- Agent 2 added: Home demo list + Compare search UI + unit test scaffolding
 - Agents 3–6 pending
 
 ## Objetivo del MVP
