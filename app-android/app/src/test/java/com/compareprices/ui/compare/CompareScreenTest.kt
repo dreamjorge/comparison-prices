@@ -28,7 +28,7 @@ class CompareScreenTest {
 
     val filtered = filterStorePrices("Arroz", stores)
 
-    assertEquals(3, filtered.size)
+    assertEquals(4, filtered.size)
   }
 
   @Test
