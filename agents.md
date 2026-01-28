@@ -2,6 +2,7 @@
 
 ## Status update (2026-02-01)
 - Agent 2 added: Compare screen sorts stores by total price, highlights the cheapest option, includes unit tests for price parsing/sorting, and now includes Walmart demo pricing data for real-supermarket search context.
+- Agent 2 added: Settings screen now uses structured section data for MVP defaults, with unit tests validating the default settings content.
 
 ## Status update (2026-01-25)
 - Agent 1 outputs drafted: `docs/mvp-scope.md`, `docs/wireframes/ux-flow.md`, `docs/wireframes/notes.md`
