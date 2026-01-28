@@ -28,6 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun CompareScreen() {
@@ -35,7 +39,10 @@ fun CompareScreen() {
   var query by rememberSaveable { mutableStateOf("") }
 
   val filteredStores = sortStorePricesByTotal(filterStorePrices(query, storePrices))
+  val comparisons = buildStoreComparisons(filteredStores)
   val cheapestTotal = cheapestTotalValue(filteredStores)
+  val listName = "Lista semanal"
+  val dateLabel = remember { formatTodayLabel() }
 
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
@@ -44,6 +51,17 @@ fun CompareScreen() {
   ) {
     item {
       Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+          text = listName,
+          style = MaterialTheme.typography.titleLarge,
+          fontWeight = FontWeight.SemiBold
+        )
+        Text(
+          text = dateLabel,
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(12.dp))
         Text(
           text = "Buscar precios por supermercado",
           style = MaterialTheme.typography.titleLarge,
@@ -84,15 +102,20 @@ fun CompareScreen() {
       }
     }
 
-    items(filteredStores) { store ->
+    items(comparisons) { comparison ->
+      val store = comparison.store
       val isCheapest = cheapestTotal != null && parseTotalPrice(store.totalLabel) == cheapestTotal
-      StorePriceCard(store = store, isCheapest = isCheapest)
+      StorePriceCard(
+        store = store,
+        isCheapest = isCheapest,
+        savingsVsNext = comparison.savingsVsNext
+      )
     }
   }
 }
 
 @Composable
-private fun StorePriceCard(store: StorePrice, isCheapest: Boolean) {
+private fun StorePriceCard(store: StorePrice, isCheapest: Boolean, savingsVsNext: Int?) {
   Card(modifier = Modifier.fillMaxWidth()) {
     Column(modifier = Modifier.padding(16.dp)) {
       Row(
@@ -109,6 +132,14 @@ private fun StorePriceCard(store: StorePrice, isCheapest: Boolean) {
             text = store.zone,
             style = MaterialTheme.typography.bodySmall
           )
+          if (savingsVsNext != null && savingsVsNext > 0) {
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+              text = "Ahorro vs siguiente: ${formatCurrency(savingsVsNext)}",
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+          }
           if (isCheapest) {
             Spacer(modifier = Modifier.height(6.dp))
             Surface(
@@ -155,6 +186,11 @@ internal data class StorePrice(
 internal data class StoreItemPrice(
   val product: String,
   val price: String
+)
+
+internal data class StoreComparison(
+  val store: StorePrice,
+  val savingsVsNext: Int?
 )
 
 internal fun demoStorePrices(): List<StorePrice> {
@@ -223,7 +259,34 @@ internal fun cheapestTotalValue(storePrices: List<StorePrice>): Int? {
   return storePrices.minOfOrNull { parseTotalPrice(it.totalLabel) }
 }
 
+internal fun buildStoreComparisons(storePrices: List<StorePrice>): List<StoreComparison> {
+  return storePrices.mapIndexed { index, store ->
+    val nextStore = storePrices.getOrNull(index + 1)
+    val savings = nextStore?.let {
+      parseTotalPrice(it.totalLabel) - parseTotalPrice(store.totalLabel)
+    }
+    StoreComparison(store, savings)
+  }
+}
+
 internal fun parseTotalPrice(totalLabel: String): Int {
   val digits = totalLabel.filter { it.isDigit() }
   return digits.toIntOrNull() ?: 0
+}
+
+internal fun formatCurrency(value: Int): String {
+  val formatter = NumberFormat.getNumberInstance(compareLocale())
+  return "$ ${formatter.format(value)}"
+}
+
+internal fun formatTodayLabel(): String {
+  val formatter = SimpleDateFormat("d MMM yyyy", compareLocale())
+  return formatter.format(Date())
+}
+
+private fun compareLocale(): Locale {
+  return Locale.Builder()
+    .setLanguage("es")
+    .setRegion("AR")
+    .build()
 }

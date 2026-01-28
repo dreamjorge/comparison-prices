@@ -17,6 +17,9 @@
 - Sort: cheapest first
 - Tap store -> optional per-store breakdown
 - Banner ad at bottom (Free only)
+### TODO (siguiente iteración)
+- Conectar nombre de lista y fecha con datos reales (no strings fijos).
+- Mostrar ahorro vs siguiente tienda con valores del comparador real.
 
 ## Product detail
 - Title: product name
