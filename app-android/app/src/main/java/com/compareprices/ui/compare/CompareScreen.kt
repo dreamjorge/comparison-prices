@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -31,7 +34,8 @@ fun CompareScreen() {
   val storePrices = remember { demoStorePrices() }
   var query by rememberSaveable { mutableStateOf("") }
 
-  val filteredStores = filterStorePrices(query, storePrices)
+  val filteredStores = sortStorePricesByTotal(filterStorePrices(query, storePrices))
+  val cheapestTotal = cheapestTotalValue(filteredStores)
 
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
@@ -81,20 +85,21 @@ fun CompareScreen() {
     }
 
     items(filteredStores) { store ->
-      StorePriceCard(store)
+      val isCheapest = cheapestTotal != null && parseTotalPrice(store.totalLabel) == cheapestTotal
+      StorePriceCard(store = store, isCheapest = isCheapest)
     }
   }
 }
 
 @Composable
-private fun StorePriceCard(store: StorePrice) {
+private fun StorePriceCard(store: StorePrice, isCheapest: Boolean) {
   Card(modifier = Modifier.fillMaxWidth()) {
     Column(modifier = Modifier.padding(16.dp)) {
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
       ) {
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
           Text(
             text = store.storeName,
             style = MaterialTheme.typography.titleMedium,
@@ -104,6 +109,21 @@ private fun StorePriceCard(store: StorePrice) {
             text = store.zone,
             style = MaterialTheme.typography.bodySmall
           )
+          if (isCheapest) {
+            Spacer(modifier = Modifier.height(6.dp))
+            Surface(
+              color = MaterialTheme.colorScheme.primaryContainer,
+              shape = RoundedCornerShape(12.dp)
+            ) {
+              Text(
+                text = "Más barato",
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                textAlign = TextAlign.Center
+              )
+            }
+          }
         }
         Text(
           text = store.totalLabel,
@@ -150,6 +170,16 @@ internal fun demoStorePrices(): List<StorePrice> {
       )
     ),
     StorePrice(
+      storeName = "Walmart",
+      zone = "Ciudad de México",
+      totalLabel = "$ 4.390",
+      items = listOf(
+        StoreItemPrice(product = "Leche entera", price = "$ 1.450"),
+        StoreItemPrice(product = "Pan integral", price = "$ 1.020"),
+        StoreItemPrice(product = "Arroz largo fino", price = "$ 1.920")
+      )
+    ),
+    StorePrice(
       storeName = "Ahorro Max",
       zone = "Palermo",
       totalLabel = "$ 4.830",
@@ -183,4 +213,17 @@ internal fun filterStorePrices(query: String, storePrices: List<StorePrice>): Li
     val matchesItem = store.items.any { it.product.contains(trimmedQuery, ignoreCase = true) }
     matchesStore || matchesItem
   }
+}
+
+internal fun sortStorePricesByTotal(storePrices: List<StorePrice>): List<StorePrice> {
+  return storePrices.sortedBy { parseTotalPrice(it.totalLabel) }
+}
+
+internal fun cheapestTotalValue(storePrices: List<StorePrice>): Int? {
+  return storePrices.minOfOrNull { parseTotalPrice(it.totalLabel) }
+}
+
+internal fun parseTotalPrice(totalLabel: String): Int {
+  val digits = totalLabel.filter { it.isDigit() }
+  return digits.toIntOrNull() ?: 0
 }
