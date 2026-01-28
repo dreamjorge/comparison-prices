@@ -29,8 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import java.text.NumberFormat
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 @Composable
@@ -275,11 +275,18 @@ internal fun parseTotalPrice(totalLabel: String): Int {
 }
 
 internal fun formatCurrency(value: Int): String {
-  val formatter = NumberFormat.getNumberInstance(Locale("es", "AR"))
+  val formatter = NumberFormat.getNumberInstance(compareLocale())
   return "$ ${formatter.format(value)}"
 }
 
 internal fun formatTodayLabel(): String {
-  val formatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale("es", "AR"))
-  return LocalDate.now().format(formatter)
+  val formatter = SimpleDateFormat("d MMM yyyy", compareLocale())
+  return formatter.format(Date())
+}
+
+private fun compareLocale(): Locale {
+  return Locale.Builder()
+    .setLanguage("es")
+    .setRegion("AR")
+    .build()
 }
