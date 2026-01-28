@@ -28,6 +28,23 @@ class CompareScreenTest {
 
     val filtered = filterStorePrices("Arroz", stores)
 
-    assertEquals(3, filtered.size)
+    assertEquals(4, filtered.size)
+  }
+
+  @Test
+  fun `sorts stores by total price ascending`() {
+    val stores = demoStorePrices()
+
+    val sorted = sortStorePricesByTotal(stores)
+
+    assertEquals(
+      listOf("Walmart", "Mercado Central", "Super Norte", "Ahorro Max"),
+      sorted.map { it.storeName }
+    )
+  }
+
+  @Test
+  fun `parses total price labels`() {
+    assertEquals(1580, parseTotalPrice("$ 1.580"))
   }
 }
