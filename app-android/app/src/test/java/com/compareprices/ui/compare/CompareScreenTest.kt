@@ -47,4 +47,13 @@ class CompareScreenTest {
   fun `parses total price labels`() {
     assertEquals(1580, parseTotalPrice("$ 1.580"))
   }
+
+  @Test
+  fun `builds savings against the next cheapest store`() {
+    val stores = demoStorePrices()
+
+    val comparisons = buildStoreComparisons(sortStorePricesByTotal(stores))
+
+    assertEquals(listOf(30, 140, 270, null), comparisons.map { it.savingsVsNext })
+  }
 }

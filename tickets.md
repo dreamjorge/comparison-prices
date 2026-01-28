@@ -142,6 +142,22 @@ Mostrar evolución del precio de un producto.
 
 ---
 
+### TICKET 2.4 — Encabezado dinámico y ahorro por tienda en comparador
+**Tipo:** Feature  
+**Prioridad:** P1  
+**Owner:** Agent 2
+
+**Descripción**
+Usar datos reales de la lista para mostrar el nombre de la lista y la fecha actual, y calcular el ahorro contra la siguiente tienda más barata en el comparador.
+
+**Criterios de aceptación**
+- El encabezado del comparador usa el nombre real de la lista activa.
+- La fecha usa el locale del usuario (no hardcode).
+- El ahorro vs siguiente tienda se calcula con datos reales (no mock).
+- Tests unitarios para el cálculo de ahorro y el formateo de moneda/fecha.
+
+---
+
 ## Epic 3 — Datos y normalización
 ---
 
