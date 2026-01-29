@@ -37,7 +37,10 @@ data class PriceSnapshotEntity(
   val capturedAt: Long
 )
 
-@Entity(tableName = "shopping_lists")
+@Entity(
+  tableName = "shopping_lists",
+  indices = [Index(value = ["name"], unique = true)]
+)
 data class ShoppingListEntity(
   @PrimaryKey(autoGenerate = true) val id: Long = 0,
   val name: String,

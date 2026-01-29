@@ -93,6 +93,18 @@ Definir entidades de base de datos.
 
 ---
 
+### TICKET 1.3 — Seeding demo data idempotente en ViewModels
+**Tipo:** Task  
+**Prioridad:** P0  
+**Owner:** Agent 2
+
+**Descripción**
+across ViewModels
+
+If Home and Compare ViewModels are created close together (e.g., user switches tabs right after launch or Compose preloads destinations), both will call seedDemoDataIfNeeded concurrently. Because that helper only checks shoppingListDao.count() before inserting and isn’t atomic, both coroutines can observe count=0 and insert duplicate demo lists/items. That leaves multiple “Compra semanal” lists and makes observeLatestList() pick whichever insert finishes last. Consider centralizing seeding in a single owner or making the seed operation transactional/unique so it’s truly idempotente.
+
+---
+
 ## Epic 2 — Lógica de negocio
 ---
 
@@ -386,3 +398,15 @@ Generar AAB y subir a beta interna.
 - Lista para Play Store
 
 ---
+
+### TICKET 8.1 — Auditoría de seeding y coverage de tests
+**Tipo:** Task  
+**Prioridad:** P1  
+**Owner:** Agent 2
+
+**Descripción**
+Revisar la estrategia de seeding de datos demo y ampliar los unit tests de concurrencia/atomicidad para evitar duplicados en escenarios de navegación rápida.
+
+**Criterios de aceptación**
+- Tests que simulen llamadas concurrentes a seeding sin duplicados.
+- Documentación de riesgos conocidos y mitigaciones.

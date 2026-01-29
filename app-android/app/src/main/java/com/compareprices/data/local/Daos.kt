@@ -42,6 +42,12 @@ interface ShoppingListDao {
   @Query("SELECT * FROM shopping_lists ORDER BY createdAt DESC")
   suspend fun getAll(): List<ShoppingListEntity>
 
+  @Query("SELECT * FROM shopping_lists WHERE name = :name LIMIT 1")
+  suspend fun findByName(name: String): ShoppingListEntity?
+
+  @Insert(onConflict = OnConflictStrategy.IGNORE)
+  suspend fun insertIgnore(item: ShoppingListEntity): Long
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun upsert(item: ShoppingListEntity): Long
 

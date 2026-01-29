@@ -211,3 +211,9 @@
 - “Crea checklist de QA + Play Store Data Safety + política de ads. Configura CI para build AAB y pruebas unitarias.”
 
 ---
+
+## Reglas adicionales para desarrollo de features
+- Cada vez que se desarrolle una feature, crear o actualizar unit tests que cubran el nuevo comportamiento.
+- Documentar posibles issues/bugs introducidos por el cambio y cómo se mitigan.
+- Ejecutar los unit tests relevantes y registrar el resultado.
+- Agregar un nuevo ticket al final del backlog para trabajo futuro derivado del desarrollo actual.
