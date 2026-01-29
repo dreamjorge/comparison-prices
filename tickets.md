@@ -211,6 +211,22 @@ Integrar una fuente real de precios (API o feed permitido) para reemplazar datos
 
 ---
 
+### TICKET 3.4 — Cambios de precios por ubicación cercana
+**Tipo:** Feature  
+**Prioridad:** P1  
+**Owner:** Agent 3 (Data) + Agent 2 (Android)
+
+**Descripción**
+Agregar soporte para cambios de precios por ubicación, garantizando que cuando se consulten precios exista cobertura en una ubicación cercana.
+
+**Criterios de aceptación**
+- Los precios se asocian a una ubicación (zona/sucursal) con coordenadas o identificador.
+- Al consultar precios, se requiere una ubicación de referencia y se seleccionan precios de la ubicación más cercana disponible.
+- Se define y documenta un radio máximo de cercanía (fallback si no hay precios dentro del radio).
+- Pruebas que validen la selección por cercanía y el fallback cuando no hay cobertura.
+
+---
+
 ## Epic 4 — Matching avanzado (opcional Rust)
 ---
 
