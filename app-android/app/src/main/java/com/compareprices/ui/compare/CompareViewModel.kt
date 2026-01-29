@@ -1,4 +1,4 @@
-package com.compareprices.ui.home
+package com.compareprices.ui.compare
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,13 +15,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class CompareViewModel @Inject constructor(
   private val productDao: ProductDao,
   private val shoppingListDao: ShoppingListDao,
   private val listItemDao: ListItemDao
 ) : ViewModel() {
-  private val _uiState = MutableStateFlow(HomeUiState())
-  val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+  private val _uiState = MutableStateFlow(CompareUiState())
+  val uiState: StateFlow<CompareUiState> = _uiState.asStateFlow()
 
   init {
     viewModelScope.launch {
@@ -29,13 +29,12 @@ class HomeViewModel @Inject constructor(
     }
     viewModelScope.launch {
       shoppingListDao.observeLatestList().collect { list ->
-        _uiState.value = HomeUiState(list)
+        _uiState.value = CompareUiState(list)
       }
     }
   }
-
 }
 
-data class HomeUiState(
+data class CompareUiState(
   val list: ShoppingListWithItems? = null
 )
