@@ -2,6 +2,9 @@ package com.compareprices.ui.compare
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 class CompareScreenTest {
   @Test
@@ -55,5 +58,23 @@ class CompareScreenTest {
     val comparisons = buildStoreComparisons(sortStorePricesByTotal(stores))
 
     assertEquals(listOf(30, 140, 270, null), comparisons.map { it.savingsVsNext })
+  }
+
+  @Test
+  fun `formats currency using locale conventions`() {
+    val formatted = formatCurrency(4560, Locale.US)
+
+    assertEquals("$4,560", formatted)
+  }
+
+  @Test
+  fun `formats date using locale and timezone`() {
+    val formatted = formatTodayLabel(
+      date = Date(0),
+      locale = Locale.US,
+      timeZone = TimeZone.getTimeZone("UTC")
+    )
+
+    assertEquals("1 Jan 1970", formatted)
   }
 }
