@@ -2,6 +2,7 @@ package com.compareprices.ui.compare
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.compareprices.data.local.AppDatabase
 import com.compareprices.data.local.ListItemDao
 import com.compareprices.data.local.ProductDao
 import com.compareprices.data.local.ShoppingListDao
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class CompareViewModel @Inject constructor(
+  private val database: AppDatabase,
   private val productDao: ProductDao,
   private val shoppingListDao: ShoppingListDao,
   private val listItemDao: ListItemDao
@@ -25,7 +27,7 @@ class CompareViewModel @Inject constructor(
 
   init {
     viewModelScope.launch {
-      seedDemoDataIfNeeded(shoppingListDao, productDao, listItemDao)
+      seedDemoDataIfNeeded(database, shoppingListDao, productDao, listItemDao)
     }
     viewModelScope.launch {
       shoppingListDao.observeLatestList().collect { list ->
