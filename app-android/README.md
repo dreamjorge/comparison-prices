@@ -45,6 +45,10 @@ The debug APK will be at `app/build/outputs/apk/debug/app-debug.apk`.
 - Compare includes a searchable list of mock supermarket prices and totals.
 - Unit tests for Compare filtering live under `app/src/test`.
 
+## Known risks and mitigations
+- Totals now multiply by list quantities based on product names; if names diverge between list items and store price labels, quantities may fall back to 1. Mitigation: quantities are normalized to lowercase per locale and future work should key on product IDs instead of names.
+- Quantity-based totals are rounded to the nearest whole currency unit to match integer price labels; if fractional pricing is introduced later, we should update parsing to preserve cents.
+
 ## Notes
 - CI uses Gradle 9.1.0 and Android SDK API 36 / build-tools 36.0.0.  
 - If you need to update SDK packages, re-run the setup script (it uses `sdkmanager` when available).

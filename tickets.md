@@ -438,3 +438,17 @@ Actualizar el comparador para que los totales por tienda respeten las cantidades
 **Criterios de aceptación**
 - Los totales por tienda reflejan cantidades reales de la lista.
 - Tests unitarios que validan el cálculo con cantidades distintas a 1.
+
+---
+
+### TICKET 8.4 — Vincular cantidades del comparador a IDs de producto
+**Tipo:** Feature  
+**Prioridad:** P2  
+**Owner:** Agent 2
+
+**Descripción**
+Evitar depender del nombre del producto para aplicar cantidades al total por tienda.
+
+**Criterios de aceptación**
+- Los totales usan el ID del producto (o una clave determinística) para aplicar cantidades.
+- Se documenta cómo se mapea el catálogo de precios a productos de la lista.
