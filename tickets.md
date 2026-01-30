@@ -424,3 +424,17 @@ Definir una estrategia de deduplicación para productos demo (por ejemplo, índi
 **Criterios de aceptación**
 - Propuesta documentada en el código o docs.
 - Se valida que los productos demo no se dupliquen en escenarios de re-seed.
+
+---
+
+### TICKET 8.3 — Ajustar totales del comparador según cantidades de la lista
+**Tipo:** Feature  
+**Prioridad:** P2  
+**Owner:** Agent 2
+
+**Descripción**
+Actualizar el comparador para que los totales por tienda respeten las cantidades de cada ítem en la lista (multiplicando el precio unitario por la cantidad y unidad).
+
+**Criterios de aceptación**
+- Los totales por tienda reflejan cantidades reales de la lista.
+- Tests unitarios que validan el cálculo con cantidades distintas a 1.

@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.compareprices.data.local.ListItemWithProduct
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -40,9 +41,11 @@ import java.util.TimeZone
 fun CompareScreen(viewModel: CompareViewModel = hiltViewModel()) {
   val uiState by viewModel.uiState.collectAsState()
   val storePrices = remember { demoStorePrices() }
+  val listItems = uiState.list?.items.orEmpty()
+  val listStorePrices = filterStorePricesByList(storePrices, listItems)
   var query by rememberSaveable { mutableStateOf("") }
 
-  val filteredStores = sortStorePricesByTotal(filterStorePrices(query, storePrices))
+  val filteredStores = sortStorePricesByTotal(filterStorePrices(query, listStorePrices))
   val comparisons = buildStoreComparisons(filteredStores)
   val cheapestTotal = cheapestTotalValue(filteredStores)
   val listName = uiState.list?.list?.name ?: "Lista actual"
@@ -247,6 +250,30 @@ internal fun filterStorePrices(query: String, storePrices: List<StorePrice>): Li
     val matchesStore = store.storeName.contains(trimmedQuery, ignoreCase = true)
     val matchesItem = store.items.any { it.product.contains(trimmedQuery, ignoreCase = true) }
     matchesStore || matchesItem
+  }
+}
+
+internal fun filterStorePricesByList(
+  storePrices: List<StorePrice>,
+  listItems: List<ListItemWithProduct>
+): List<StorePrice> {
+  if (listItems.isEmpty()) {
+    return storePrices
+  }
+
+  val wantedProducts = listItems
+    .map { it.product.name.lowercase(Locale.getDefault()) }
+    .toSet()
+
+  return storePrices.mapNotNull { store ->
+    val filteredItems = store.items.filter { item ->
+      item.product.lowercase(Locale.getDefault()) in wantedProducts
+    }
+    if (filteredItems.isEmpty()) {
+      null
+    } else {
+      store.copy(items = filteredItems)
+    }
   }
 }
 
