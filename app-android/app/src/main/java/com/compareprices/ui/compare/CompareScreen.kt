@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.math.roundToInt
 
 @Composable
 fun CompareScreen(viewModel: CompareViewModel = hiltViewModel()) {
@@ -44,10 +45,20 @@ fun CompareScreen(viewModel: CompareViewModel = hiltViewModel()) {
   val listItems = uiState.list?.items.orEmpty()
   val listStorePrices = filterStorePricesByList(storePrices, listItems)
   var query by rememberSaveable { mutableStateOf("") }
+  val locale = Locale.getDefault()
+  val quantityByProduct = buildQuantityByProduct(listItems, locale)
 
-  val filteredStores = sortStorePricesByTotal(filterStorePrices(query, listStorePrices))
-  val comparisons = buildStoreComparisons(filteredStores)
-  val cheapestTotal = cheapestTotalValue(filteredStores)
+  val filteredStores = sortStorePricesByTotal(
+    storePrices = filterStorePrices(query, listStorePrices),
+    quantityByProduct = quantityByProduct,
+    locale = locale
+  )
+  val comparisons = buildStoreComparisons(
+    storePrices = filteredStores,
+    quantityByProduct = quantityByProduct,
+    locale = locale
+  )
+  val cheapestTotal = comparisons.minOfOrNull { it.total }
   val listName = uiState.list?.list?.name ?: "Lista actual"
   val dateLabel = remember { formatTodayLabel() }
 
@@ -111,18 +122,24 @@ fun CompareScreen(viewModel: CompareViewModel = hiltViewModel()) {
 
     items(comparisons) { comparison ->
       val store = comparison.store
-      val isCheapest = cheapestTotal != null && storeTotalValue(store) == cheapestTotal
+      val isCheapest = cheapestTotal != null && comparison.total == cheapestTotal
       StorePriceCard(
         store = store,
         isCheapest = isCheapest,
-        savingsVsNext = comparison.savingsVsNext
+        savingsVsNext = comparison.savingsVsNext,
+        total = comparison.total
       )
     }
   }
 }
 
 @Composable
-private fun StorePriceCard(store: StorePrice, isCheapest: Boolean, savingsVsNext: Int?) {
+private fun StorePriceCard(
+  store: StorePrice,
+  isCheapest: Boolean,
+  savingsVsNext: Int?,
+  total: Int
+) {
   Card(modifier = Modifier.fillMaxWidth()) {
     Column(modifier = Modifier.padding(16.dp)) {
       Row(
@@ -164,7 +181,7 @@ private fun StorePriceCard(store: StorePrice, isCheapest: Boolean, savingsVsNext
           }
         }
         Text(
-          text = formatCurrency(storeTotalValue(store)),
+          text = formatCurrency(total),
           style = MaterialTheme.typography.titleMedium,
           fontWeight = FontWeight.SemiBold
         )
@@ -196,7 +213,8 @@ internal data class StoreItemPrice(
 
 internal data class StoreComparison(
   val store: StorePrice,
-  val savingsVsNext: Int?
+  val savingsVsNext: Int?,
+  val total: Int
 )
 
 internal fun demoStorePrices(): List<StorePrice> {
@@ -277,26 +295,47 @@ internal fun filterStorePricesByList(
   }
 }
 
-internal fun sortStorePricesByTotal(storePrices: List<StorePrice>): List<StorePrice> {
-  return storePrices.sortedBy { storeTotalValue(it) }
+internal fun buildQuantityByProduct(
+  listItems: List<ListItemWithProduct>,
+  locale: Locale = Locale.getDefault()
+): Map<String, Double> {
+  return listItems
+    .groupBy { it.product.name.lowercase(locale) }
+    .mapValues { (_, items) -> items.sumOf { it.item.quantity } }
 }
 
-internal fun cheapestTotalValue(storePrices: List<StorePrice>): Int? {
-  return storePrices.minOfOrNull { storeTotalValue(it) }
+internal fun sortStorePricesByTotal(
+  storePrices: List<StorePrice>,
+  quantityByProduct: Map<String, Double>,
+  locale: Locale = Locale.getDefault()
+): List<StorePrice> {
+  return storePrices.sortedBy { storeTotalValue(it, quantityByProduct, locale) }
 }
 
-internal fun buildStoreComparisons(storePrices: List<StorePrice>): List<StoreComparison> {
+internal fun buildStoreComparisons(
+  storePrices: List<StorePrice>,
+  quantityByProduct: Map<String, Double>,
+  locale: Locale = Locale.getDefault()
+): List<StoreComparison> {
   return storePrices.mapIndexed { index, store ->
     val nextStore = storePrices.getOrNull(index + 1)
+    val storeTotal = storeTotalValue(store, quantityByProduct, locale)
     val savings = nextStore?.let {
-      storeTotalValue(it) - storeTotalValue(store)
+      storeTotalValue(it, quantityByProduct, locale) - storeTotal
     }
-    StoreComparison(store, savings)
+    StoreComparison(store, savings, storeTotal)
   }
 }
 
-internal fun storeTotalValue(store: StorePrice): Int {
-  return store.items.sumOf { parseTotalPrice(it.price) }
+internal fun storeTotalValue(
+  store: StorePrice,
+  quantityByProduct: Map<String, Double>,
+  locale: Locale = Locale.getDefault()
+): Int {
+  return store.items.sumOf { item ->
+    val quantity = quantityByProduct[item.product.lowercase(locale)] ?: 1.0
+    kotlin.math.roundToInt(parseTotalPrice(item.price) * quantity)
+  }
 }
 
 internal fun parseTotalPrice(totalLabel: String): Int {
