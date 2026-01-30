@@ -410,3 +410,17 @@ Revisar la estrategia de seeding de datos demo y ampliar los unit tests de concu
 **Criterios de aceptación**
 - Tests que simulen llamadas concurrentes a seeding sin duplicados.
 - Documentación de riesgos conocidos y mitigaciones.
+
+---
+
+### TICKET 8.2 — Endurecer deduplicación de productos demo
+**Tipo:** Task  
+**Prioridad:** P2  
+**Owner:** Agent 2
+
+**Descripción**
+Definir una estrategia de deduplicación para productos demo (por ejemplo, índices únicos por nombre+marca o IDs determinísticos) para evitar duplicados si se agregan nuevos flows de seeding.
+
+**Criterios de aceptación**
+- Propuesta documentada en el código o docs.
+- Se valida que los productos demo no se dupliquen en escenarios de re-seed.
