@@ -334,7 +334,7 @@ internal fun storeTotalValue(
 ): Int {
   return store.items.sumOf { item ->
     val quantity = quantityByProduct[item.product.lowercase(locale)] ?: 1.0
-    kotlin.math.roundToInt(parseTotalPrice(item.price) * quantity)
+    (parseTotalPrice(item.price) * quantity).roundToInt()
   }
 }
 
