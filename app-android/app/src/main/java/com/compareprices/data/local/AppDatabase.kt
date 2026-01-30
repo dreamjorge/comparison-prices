@@ -1,7 +1,9 @@
 package com.compareprices.data.local
 
 import androidx.room.Database
+import androidx.room.migration.Migration
 import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
   entities = [
@@ -20,4 +22,24 @@ abstract class AppDatabase : RoomDatabase() {
   abstract fun priceSnapshotDao(): PriceSnapshotDao
   abstract fun shoppingListDao(): ShoppingListDao
   abstract fun listItemDao(): ListItemDao
+
+  companion object {
+    val MIGRATION_1_2 = object : Migration(1, 2) {
+      override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+          """
+          DELETE FROM shopping_lists
+          WHERE name IN (SELECT name FROM shopping_lists GROUP BY name HAVING COUNT(*) > 1)
+          AND id NOT IN (SELECT MAX(id) FROM shopping_lists GROUP BY name)
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          CREATE UNIQUE INDEX IF NOT EXISTS index_shopping_lists_name
+          ON shopping_lists(name)
+          """.trimIndent()
+        )
+      }
+    }
+  }
 }

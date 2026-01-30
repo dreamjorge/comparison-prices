@@ -16,7 +16,7 @@ object DatabaseModule {
   @Singleton
   fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
     return Room.databaseBuilder(context, AppDatabase::class.java, "compare_prices.db")
-      .fallbackToDestructiveMigration()
+      .addMigrations(AppDatabase.MIGRATION_1_2)
       .build()
   }
 
