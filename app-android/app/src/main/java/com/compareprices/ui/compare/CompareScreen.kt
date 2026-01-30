@@ -332,10 +332,11 @@ internal fun storeTotalValue(
   quantityByProduct: Map<String, Double>,
   locale: Locale = Locale.getDefault()
 ): Int {
-  return store.items.sumOf { item ->
+  val total = store.items.sumOf { item ->
     val quantity = quantityByProduct[item.product.lowercase(locale)] ?: 1.0
-    (parseTotalPrice(item.price) * quantity).roundToInt()
+    parseTotalPrice(item.price) * quantity
   }
+  return total.roundToInt()
 }
 
 internal fun parseTotalPrice(totalLabel: String): Int {

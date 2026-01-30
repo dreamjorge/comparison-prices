@@ -131,4 +131,21 @@ class CompareScreenTest {
 
     assertEquals(mapOf("leche entera" to 2.0, "pan integral" to 1.0), quantities)
   }
+
+  @Test
+  fun `rounds totals after summing fractional quantities`() {
+    val store = StorePrice(
+      storeName = "Test",
+      zone = "Zone",
+      items = listOf(
+        StoreItemPrice(product = "Item A", price = "$ 101"),
+        StoreItemPrice(product = "Item B", price = "$ 101")
+      )
+    )
+    val quantities = mapOf("item a" to 0.5, "item b" to 0.5)
+
+    val total = storeTotalValue(store, quantities, Locale("es", "AR"))
+
+    assertEquals(101, total)
+  }
 }
