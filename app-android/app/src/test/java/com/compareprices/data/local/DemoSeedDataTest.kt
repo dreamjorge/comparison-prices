@@ -33,6 +33,29 @@ class DemoSeedDataTest {
     assertEquals(3, store.products.size)
     assertEquals(3, store.listItems.size)
   }
+
+  @Test
+  fun `seeding reuses existing product ids`() = runBlocking {
+    val store = FakeSeedStore().apply {
+      seedProduct(ProductEntity(id = 41, name = "Leche entera", brand = "La Serenisima", defaultUnit = "litro"))
+      seedProduct(ProductEntity(id = 42, name = "Pan integral", brand = "Bimbo", defaultUnit = "unidad"))
+      seedProduct(ProductEntity(id = 43, name = "Arroz largo fino", brand = "Gallo", defaultUnit = "kg"))
+    }
+    val transactionRunner = DemoSeedTransactionRunner { block -> block() }
+
+    seedDemoDataIfNeeded(
+      transactionRunner = transactionRunner,
+      shoppingListDao = store.shoppingListDao,
+      productDao = store.productDao,
+      listItemDao = store.listItemDao
+    )
+
+    assertEquals(3, store.products.size)
+    assertEquals(
+      listOf(41L, 42L, 43L),
+      store.listItems.map { it.productId }.sorted()
+    )
+  }
 }
 
 private class FakeSeedStore {
@@ -66,6 +89,29 @@ private class FakeSeedStore {
   val productDao: ProductDao = object : ProductDao {
     override suspend fun getAll(): List<ProductEntity> = productRecords.toList()
 
+    override suspend fun findByKey(
+      name: String,
+      brand: String?,
+      defaultUnit: String
+    ): ProductEntity? {
+      return productRecords.firstOrNull {
+        it.name == name && it.brand == brand && it.defaultUnit == defaultUnit
+      }
+    }
+
+    override suspend fun insertIgnore(items: List<ProductEntity>): List<Long> {
+      return items.map { item ->
+        val existing = findByKey(item.name, item.brand, item.defaultUnit)
+        if (existing != null) {
+          -1L
+        } else {
+          val nextId = (productRecords.maxOfOrNull { it.id } ?: 0) + 1
+          productRecords.add(item.copy(id = nextId))
+          nextId
+        }
+      }
+    }
+
     override suspend fun upsertAll(items: List<ProductEntity>) {
       productRecords.addAll(items)
     }
@@ -96,4 +142,7 @@ private class FakeSeedStore {
   val listItems: List<ListItemEntity>
     get() = listItemRecords.toList()
 
+  fun seedProduct(product: ProductEntity) {
+    productRecords.add(product)
+  }
 }

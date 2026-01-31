@@ -6,7 +6,10 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 
-@Entity(tableName = "products")
+@Entity(
+  tableName = "products",
+  indices = [Index(value = ["name", "brand", "defaultUnit"], unique = true)]
+)
 data class ProductEntity(
   @PrimaryKey(autoGenerate = true) val id: Long = 0,
   val name: String,

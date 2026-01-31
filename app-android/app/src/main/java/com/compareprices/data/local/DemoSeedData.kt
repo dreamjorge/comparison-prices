@@ -52,7 +52,15 @@ internal suspend fun seedDemoDataIfNeeded(
         ProductEntity(name = "Pan integral", brand = "Bimbo", defaultUnit = "unidad"),
         ProductEntity(name = "Arroz largo fino", brand = "Gallo", defaultUnit = "kg")
       )
-      val productIds = productDao.insertAll(products)
+      val insertResults = productDao.insertIgnore(products)
+      val productIds = products.mapIndexed { index, product ->
+        val insertedId = insertResults.getOrNull(index) ?: -1L
+        if (insertedId != -1L) {
+          insertedId
+        } else {
+          productDao.findByKey(product.name, product.brand, product.defaultUnit)?.id ?: 0
+        }
+      }
 
       val items = listOf(
         ListItemEntity(
