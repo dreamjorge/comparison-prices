@@ -12,6 +12,20 @@ interface ProductDao {
   @Query("SELECT * FROM products ORDER BY name ASC")
   suspend fun getAll(): List<ProductEntity>
 
+  @Query(
+    """
+    SELECT * FROM products
+    WHERE name = :name
+      AND ((brand IS NULL AND :brand IS NULL) OR brand = :brand)
+      AND defaultUnit = :defaultUnit
+    LIMIT 1
+    """
+  )
+  suspend fun findByKey(name: String, brand: String?, defaultUnit: String): ProductEntity?
+
+  @Insert(onConflict = OnConflictStrategy.IGNORE)
+  suspend fun insertIgnore(items: List<ProductEntity>): List<Long>
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun upsertAll(items: List<ProductEntity>)
 
