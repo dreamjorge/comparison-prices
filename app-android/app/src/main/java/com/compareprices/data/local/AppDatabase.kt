@@ -13,7 +13,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
     ShoppingListEntity::class,
     ListItemEntity::class
   ],
-  version = 2,
+  version = 3,
   exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -37,6 +37,27 @@ abstract class AppDatabase : RoomDatabase() {
           """
           CREATE UNIQUE INDEX IF NOT EXISTS index_shopping_lists_name
           ON shopping_lists(name)
+          """.trimIndent()
+        )
+      }
+    }
+
+    val MIGRATION_2_3 = object : Migration(2, 3) {
+      override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+          """
+          DELETE FROM products
+          WHERE id NOT IN (
+            SELECT MIN(id)
+            FROM products
+            GROUP BY name, brand, defaultUnit
+          )
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          CREATE UNIQUE INDEX IF NOT EXISTS index_products_name_brand_defaultUnit
+          ON products(name, brand, defaultUnit)
           """.trimIndent()
         )
       }

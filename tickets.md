@@ -452,3 +452,31 @@ Evitar depender del nombre del producto para aplicar cantidades al total por tie
 **Criterios de aceptación**
 - Los totales usan el ID del producto (o una clave determinística) para aplicar cantidades.
 - Se documenta cómo se mapea el catálogo de precios a productos de la lista.
+
+---
+
+### TICKET 8.5 — Documentar deduplicación de datos demo
+**Tipo:** Task  
+**Prioridad:** P2  
+**Owner:** Agent 2
+
+**Descripción**
+Documentar una estrategia de deduplicación para datos demo (productos/listas) que evite duplicados cuando el seeding se dispare en paralelo.
+
+**Criterios de aceptación**
+- Documento con propuesta de clave natural/índices únicos para productos demo.
+- Recomendaciones para seeding idempotente y tests asociados.
+
+---
+
+### TICKET 8.6 — Normalizar brand nulo en productos demo
+**Tipo:** Task  
+**Prioridad:** P2  
+**Owner:** Agent 2
+
+**Descripción**
+Evitar duplicados permitidos por `NULL` en índices únicos al normalizar `brand` para productos demo.
+
+**Criterios de aceptación**
+- Definir regla de normalización (`brand` vacío en lugar de nulo) antes de insertar productos demo.
+- Actualizar seeding y/o migraciones para alinear registros existentes.
