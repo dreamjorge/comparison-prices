@@ -46,6 +46,44 @@ abstract class AppDatabase : RoomDatabase() {
       override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(
           """
+          UPDATE list_items
+          SET productId = (
+            SELECT MIN(p2.id)
+            FROM products p
+            JOIN products p2
+              ON p2.name = p.name
+              AND p2.brand IS p.brand
+              AND p2.defaultUnit = p.defaultUnit
+            WHERE p.id = list_items.productId
+          )
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          UPDATE price_snapshots
+          SET productId = (
+            SELECT MIN(p2.id)
+            FROM products p
+            JOIN products p2
+              ON p2.name = p.name
+              AND p2.brand IS p.brand
+              AND p2.defaultUnit = p.defaultUnit
+            WHERE p.id = price_snapshots.productId
+          )
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          DELETE FROM list_items
+          WHERE id NOT IN (
+            SELECT MIN(id)
+            FROM list_items
+            GROUP BY listId, productId
+          )
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
           DELETE FROM products
           WHERE id NOT IN (
             SELECT MIN(id)
