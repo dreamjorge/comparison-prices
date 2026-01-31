@@ -16,3 +16,5 @@
 ## Riesgos y mitigaciones
 - **Riesgo:** migrar `brand` nulo a cadena vacía puede generar inconsistencias si alguna capa espera `NULL`.
   **Mitigación:** normalizar `brand` en el seeding demo y tratar `""` como “sin marca” en UI/consultas futuras.
+- **Riesgo:** deduplicar `list_items` después del remap de `productId` puede eliminar cantidades duplicadas si existían items idénticos.
+  **Mitigación:** agregar una tarea de seguimiento para evaluar si conviene fusionar cantidades en migraciones futuras o ajustar la lógica de inserción.

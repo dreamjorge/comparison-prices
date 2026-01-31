@@ -503,3 +503,18 @@ Alinear la capa de presentación y repositorios para que `""` se interprete como
 **Criterios de aceptación**
 - Helper compartido para mapear `""` a valor legible en UI.
 - Pruebas unitarias que validen el mapeo en casos nulos/vacíos.
+
+---
+
+### TICKET 8.8 — Revisar merge de cantidades en deduplicación de list_items
+**Tipo:** Task  
+**Prioridad:** P2  
+**Owner:** Agent 2
+
+**Descripción**
+Cuando una migración remapea `productId` y deduplica `list_items`, es posible que existan items con cantidades distintas para el mismo `listId` y `productId`. Validar si corresponde fusionar cantidades en lugar de conservar solo el primer registro.
+
+**Criterios de aceptación**
+- Análisis del impacto de la deduplicación actual (por `MIN(id)`).
+- Definición de estrategia para fusionar cantidades o mantener el comportamiento actual.
+- Actualizar migraciones/tests si se decide fusionar.

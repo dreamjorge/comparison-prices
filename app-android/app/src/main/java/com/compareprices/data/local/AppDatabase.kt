@@ -104,6 +104,7 @@ abstract class AppDatabase : RoomDatabase() {
     val MIGRATION_3_4 = object : Migration(3, 4) {
       override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("DROP INDEX IF EXISTS index_products_name_brand_defaultUnit")
+        db.execSQL("DROP INDEX IF EXISTS index_list_items_listId_productId")
         db.execSQL(
           """
           UPDATE products
@@ -141,6 +142,16 @@ abstract class AppDatabase : RoomDatabase() {
         )
         db.execSQL(
           """
+          DELETE FROM list_items
+          WHERE id NOT IN (
+            SELECT MIN(id)
+            FROM list_items
+            GROUP BY listId, productId
+          )
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
           DELETE FROM products
           WHERE id NOT IN (
             SELECT MIN(id)
@@ -153,6 +164,12 @@ abstract class AppDatabase : RoomDatabase() {
           """
           CREATE UNIQUE INDEX IF NOT EXISTS index_products_name_brand_defaultUnit
           ON products(name, brand, defaultUnit)
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          CREATE UNIQUE INDEX IF NOT EXISTS index_list_items_listId_productId
+          ON list_items(listId, productId)
           """.trimIndent()
         )
       }
