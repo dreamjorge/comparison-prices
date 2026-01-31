@@ -56,6 +56,13 @@ class DemoSeedDataTest {
       store.listItems.map { it.productId }.sorted()
     )
   }
+
+  @Test
+  fun `normalizes brand values before insert`() {
+    assertEquals("", normalizeBrand(null))
+    assertEquals("", normalizeBrand("   "))
+    assertEquals("Marca", normalizeBrand(" Marca "))
+  }
 }
 
 private class FakeSeedStore {
