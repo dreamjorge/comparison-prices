@@ -11,6 +11,10 @@ internal fun interface DemoSeedTransactionRunner {
   suspend fun runInTransaction(block: suspend () -> Unit)
 }
 
+internal fun normalizeBrand(brand: String?): String {
+  return brand?.trim().orEmpty()
+}
+
 internal suspend fun seedDemoDataIfNeeded(
   database: AppDatabase,
   shoppingListDao: ShoppingListDao,
@@ -52,8 +56,11 @@ internal suspend fun seedDemoDataIfNeeded(
         ProductEntity(name = "Pan integral", brand = "Bimbo", defaultUnit = "unidad"),
         ProductEntity(name = "Arroz largo fino", brand = "Gallo", defaultUnit = "kg")
       )
-      val insertResults = productDao.insertIgnore(products)
-      val productIds = products.mapIndexed { index, product ->
+      val normalizedProducts = products.map { product ->
+        product.copy(brand = normalizeBrand(product.brand))
+      }
+      val insertResults = productDao.insertIgnore(normalizedProducts)
+      val productIds = normalizedProducts.mapIndexed { index, product ->
         val insertedId = insertResults.getOrNull(index) ?: -1L
         if (insertedId != -1L) {
           insertedId

@@ -4,6 +4,7 @@
 - TICKET 0.1: Drafted in `docs/mvp-scope.md`
 - TICKET 0.2: Drafted in `docs/wireframes/ux-flow.md` + `docs/wireframes/notes.md`
 - TICKET 1.1: Scaffold created in `app-android/` (needs build validation)
+- TICKET 1.2, 1.3, 2.2, 2.4, 8.3, 8.6: Implemented en `app-android/` con tests y migración de datos.
 - TICKET 1.2+: Pending
 
 ## Epic 0 — Preparación del proyecto
@@ -75,6 +76,7 @@ Inicializar proyecto Android moderno.
 **Tipo:** Task  
 **Prioridad:** P0  
 **Owner:** Agent 2
+**Status:** Done (2026-02-01)
 
 **Descripción**
 Definir entidades de base de datos.
@@ -97,6 +99,7 @@ Definir entidades de base de datos.
 **Tipo:** Task  
 **Prioridad:** P0  
 **Owner:** Agent 2
+**Status:** Done (2026-02-01)
 
 **Descripción**
 across ViewModels
@@ -128,6 +131,7 @@ El usuario puede crear y editar una lista de compras.
 **Tipo:** Feature  
 **Prioridad:** P0  
 **Owner:** Agent 2
+**Status:** Done (2026-02-01)
 
 **Descripción**
 Calcular el total de la lista por tienda.
@@ -158,6 +162,7 @@ Mostrar evolución del precio de un producto.
 **Tipo:** Feature  
 **Prioridad:** P1  
 **Owner:** Agent 2
+**Status:** Done (2026-02-01)
 
 **Descripción**
 Usar datos reales de la lista para mostrar el nombre de la lista y la fecha actual, y calcular el ahorro contra la siguiente tienda más barata en el comparador.
@@ -431,6 +436,7 @@ Definir una estrategia de deduplicación para productos demo (por ejemplo, índi
 **Tipo:** Feature  
 **Prioridad:** P2  
 **Owner:** Agent 2
+**Status:** Done (2026-02-01)
 
 **Descripción**
 Actualizar el comparador para que los totales por tienda respeten las cantidades de cada ítem en la lista (multiplicando el precio unitario por la cantidad y unidad).
@@ -473,6 +479,7 @@ Documentar una estrategia de deduplicación para datos demo (productos/listas) q
 **Tipo:** Task  
 **Prioridad:** P2  
 **Owner:** Agent 2
+**Status:** Done (2026-02-01)
 
 **Descripción**
 Evitar duplicados permitidos por `NULL` en índices únicos al normalizar `brand` para productos demo.
@@ -480,3 +487,19 @@ Evitar duplicados permitidos por `NULL` en índices únicos al normalizar `brand
 **Criterios de aceptación**
 - Definir regla de normalización (`brand` vacío en lugar de nulo) antes de insertar productos demo.
 - Actualizar seeding y/o migraciones para alinear registros existentes.
+
+**Riesgos y mitigaciones**
+- Riesgo: inconsistencias si alguna capa espera `NULL` como ausencia de marca.
+- Mitigación: normalizar `brand` en seeding/migraciones y tratar `\"\"` como “sin marca” en UI/consultas.
+
+### TICKET 8.7 — Normalizar brand vacío en UI y repositorios
+**Tipo:** Task  
+**Prioridad:** P2  
+**Owner:** Agent 2
+
+**Descripción**
+Alinear la capa de presentación y repositorios para que `""` se interprete como “sin marca” y evitar divergencias con datos legacy.
+
+**Criterios de aceptación**
+- Helper compartido para mapear `""` a valor legible en UI.
+- Pruebas unitarias que validen el mapeo en casos nulos/vacíos.
