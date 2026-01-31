@@ -13,7 +13,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
     ShoppingListEntity::class,
     ListItemEntity::class
   ],
-  version = 3,
+  version = 4,
   exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -96,6 +96,80 @@ abstract class AppDatabase : RoomDatabase() {
           """
           CREATE UNIQUE INDEX IF NOT EXISTS index_products_name_brand_defaultUnit
           ON products(name, brand, defaultUnit)
+          """.trimIndent()
+        )
+      }
+    }
+
+    val MIGRATION_3_4 = object : Migration(3, 4) {
+      override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DROP INDEX IF EXISTS index_products_name_brand_defaultUnit")
+        db.execSQL("DROP INDEX IF EXISTS index_list_items_listId_productId")
+        db.execSQL(
+          """
+          UPDATE products
+          SET brand = ''
+          WHERE brand IS NULL
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          UPDATE list_items
+          SET productId = (
+            SELECT MIN(p2.id)
+            FROM products p
+            JOIN products p2
+              ON p2.name = p.name
+              AND p2.brand = p.brand
+              AND p2.defaultUnit = p.defaultUnit
+            WHERE p.id = list_items.productId
+          )
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          UPDATE price_snapshots
+          SET productId = (
+            SELECT MIN(p2.id)
+            FROM products p
+            JOIN products p2
+              ON p2.name = p.name
+              AND p2.brand = p.brand
+              AND p2.defaultUnit = p.defaultUnit
+            WHERE p.id = price_snapshots.productId
+          )
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          DELETE FROM list_items
+          WHERE id NOT IN (
+            SELECT MIN(id)
+            FROM list_items
+            GROUP BY listId, productId
+          )
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          DELETE FROM products
+          WHERE id NOT IN (
+            SELECT MIN(id)
+            FROM products
+            GROUP BY name, brand, defaultUnit
+          )
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          CREATE UNIQUE INDEX IF NOT EXISTS index_products_name_brand_defaultUnit
+          ON products(name, brand, defaultUnit)
+          """.trimIndent()
+        )
+        db.execSQL(
+          """
+          CREATE UNIQUE INDEX IF NOT EXISTS index_list_items_listId_productId
+          ON list_items(listId, productId)
           """.trimIndent()
         )
       }
