@@ -1,5 +1,6 @@
 package com.compareprices.ui.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -56,7 +57,7 @@ fun HomeScreen(
         ),
         modifier = Modifier
           .fillMaxWidth()
-          .androidx.compose.foundation.clickable { onNavigateToPaywall() }
+          .clickable { onNavigateToPaywall() }
       ) {
         Column(modifier = Modifier.padding(16.dp)) {
           Text(text = list.list.name, style = MaterialTheme.typography.titleLarge)
@@ -120,7 +121,7 @@ private fun ListItemCard(
   Card(
     modifier = Modifier
       .fillMaxWidth()
-      .androidx.compose.foundation.clickable(onClick = onClick)
+      .clickable(onClick = onClick)
   ) {
     Column(modifier = Modifier.padding(16.dp)) {
       Row(

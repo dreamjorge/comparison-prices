@@ -19,7 +19,8 @@ internal suspend fun seedDemoDataIfNeeded(
   database: AppDatabase,
   shoppingListDao: ShoppingListDao,
   productDao: ProductDao,
-  listItemDao: ListItemDao
+  listItemDao: ListItemDao,
+  priceSnapshotDao: PriceSnapshotDao
 ) {
   seedDemoDataIfNeeded(
     transactionRunner = DemoSeedTransactionRunner { block ->
@@ -27,7 +28,8 @@ internal suspend fun seedDemoDataIfNeeded(
     },
     shoppingListDao = shoppingListDao,
     productDao = productDao,
-    listItemDao = listItemDao
+    listItemDao = listItemDao,
+    priceSnapshotDao = priceSnapshotDao
   )
 }
 
@@ -35,7 +37,8 @@ internal suspend fun seedDemoDataIfNeeded(
   transactionRunner: DemoSeedTransactionRunner,
   shoppingListDao: ShoppingListDao,
   productDao: ProductDao,
-  listItemDao: ListItemDao
+  listItemDao: ListItemDao,
+  priceSnapshotDao: PriceSnapshotDao
 ) {
   seedMutex.withLock {
     transactionRunner.runInTransaction {
@@ -108,7 +111,7 @@ internal suspend fun seedDemoDataIfNeeded(
           }
         }
       }
-      database.priceSnapshotDao().insertAll(snapshots)
+      priceSnapshotDao.insertAll(snapshots)
     }
   }
 }

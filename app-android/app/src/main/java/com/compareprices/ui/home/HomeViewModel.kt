@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.compareprices.data.local.AppDatabase
 import com.compareprices.data.local.ListItemDao
 import com.compareprices.data.local.ProductDao
+import com.compareprices.data.local.PriceSnapshotDao
 import com.compareprices.data.local.ShoppingListDao
 import com.compareprices.data.local.ShoppingListWithItems
 import com.compareprices.data.local.seedDemoDataIfNeeded
@@ -21,6 +22,7 @@ class HomeViewModel @Inject constructor(
   private val productDao: ProductDao,
   private val shoppingListDao: ShoppingListDao,
   private val listItemDao: ListItemDao,
+  private val priceSnapshotDao: PriceSnapshotDao,
   private val userPrefs: com.compareprices.data.local.UserPrefs
 ) : ViewModel() {
   private val _uiState = MutableStateFlow(HomeUiState(isPro = userPrefs.isProUser))
@@ -28,7 +30,7 @@ class HomeViewModel @Inject constructor(
 
   init {
     viewModelScope.launch {
-      seedDemoDataIfNeeded(database, shoppingListDao, productDao, listItemDao)
+      seedDemoDataIfNeeded(database, shoppingListDao, productDao, listItemDao, priceSnapshotDao)
     }
     viewModelScope.launch {
       shoppingListDao.observeLatestList().collect { list ->
