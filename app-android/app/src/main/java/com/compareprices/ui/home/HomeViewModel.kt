@@ -20,9 +20,10 @@ class HomeViewModel @Inject constructor(
   private val database: AppDatabase,
   private val productDao: ProductDao,
   private val shoppingListDao: ShoppingListDao,
-  private val listItemDao: ListItemDao
+  private val listItemDao: ListItemDao,
+  private val userPrefs: com.compareprices.data.local.UserPrefs
 ) : ViewModel() {
-  private val _uiState = MutableStateFlow(HomeUiState())
+  private val _uiState = MutableStateFlow(HomeUiState(isPro = userPrefs.isProUser))
   val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
   init {
@@ -36,8 +37,24 @@ class HomeViewModel @Inject constructor(
     }
   }
 
+  fun deleteItem(itemId: Long) {
+    viewModelScope.launch {
+      listItemDao.deleteById(itemId)
+    }
+  }
+
+  fun updateItemQuantity(itemId: Long, quantity: Double) {
+    viewModelScope.launch {
+      if (quantity <= 0) {
+        listItemDao.deleteById(itemId)
+      } else {
+        listItemDao.updateQuantity(itemId, quantity)
+      }
+    }
+  }
 }
 
 data class HomeUiState(
-  val list: ShoppingListWithItems? = null
+  val list: ShoppingListWithItems? = null,
+  val isPro: Boolean = false
 )
