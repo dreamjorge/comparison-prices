@@ -3,7 +3,7 @@
 ## Seleccionado para esta iteración
 - [x] TICKET 8.6 — Normalizar brand nulo en productos demo.
 - [x] TICKET 9.1 — Documentar estructura monorepo web + backend compartido.
-- [ ] TICKET 9.2 — Scaffold de frontend web base (app-web/ o web/) con routing, layout y configuración básica.
+- [x] TICKET 9.2 — Scaffold de frontend web base (app-web/ o web/) con routing, layout y configuración básica.
 - [ ] TICKET 9.3 — Definir contratos compartidos (OpenAPI/DTOs) en packages/contracts con generación de tipos.
 - [ ] TICKET 9.4 — Implementar endpoints mínimos para web (stores, search, list totals, price history) y ajustes de API.
 - [ ] TICKET 9.5 — Configurar CORS, autenticación y paginado (cursor/limit) para consumo web seguro.
@@ -26,3 +26,4 @@
 
 ## Backlog (seguimiento)
 - [ ] TICKET 9.6 — Definir checklist CI para verificar generación de contratos desde `packages/contracts` y detectar divergencias.
+- [ ] TICKET 9.7 — Conectar el scaffold web con contratos reales y datos de API cuando estén disponibles.
