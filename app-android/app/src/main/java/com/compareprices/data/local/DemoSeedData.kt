@@ -90,6 +90,25 @@ internal suspend fun seedDemoDataIfNeeded(
         )
       )
       listItemDao.upsertAll(items)
+
+      // Seed Price History Snapshots
+      val snapshots = mutableListOf<PriceSnapshotEntity>()
+      productIds.forEachIndexed { idx, pid ->
+        if (pid != -1L) {
+          val basePrice = (1000 + idx * 200).toDouble()
+          for (i in 0 until 5) {
+            snapshots.add(
+              PriceSnapshotEntity(
+                productId = pid,
+                storeId = 1L + idx, // Simple mapping
+                price = basePrice + (i * 50),
+                capturedAt = System.currentTimeMillis() - (i * 86400000L) // 1 day steps
+              )
+            )
+          }
+        }
+      }
+      database.priceSnapshotDao().insertAll(snapshots)
     }
   }
 }

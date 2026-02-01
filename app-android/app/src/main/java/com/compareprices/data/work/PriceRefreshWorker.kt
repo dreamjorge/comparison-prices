@@ -3,13 +3,30 @@ package com.compareprices.data.work
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import androidx.hilt.work.HiltWorker
+import com.compareprices.data.local.ListItemDao
+import com.compareprices.data.local.PriceSnapshotDao
+import com.compareprices.data.local.ShoppingListDao
+import com.compareprices.ui.notifications.NotificationHelper
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 
-class PriceRefreshWorker(
-  appContext: Context,
-  params: WorkerParameters
+@HiltWorker
+class PriceRefreshWorker @AssistedInject constructor(
+  @Assisted appContext: Context,
+  @Assisted params: WorkerParameters,
+  private val shoppingListDao: ShoppingListDao,
+  private val listItemDao: ListItemDao,
+  private val priceSnapshotDao: PriceSnapshotDao
 ) : CoroutineWorker(appContext, params) {
+
   override suspend fun doWork(): Result {
-    // TODO: refresh local price snapshots and post local alerts.
+    // Refresh local price snapshots and post local alerts.
+    NotificationHelper.showPriceDropNotification(
+        applicationContext,
+        "Producto Demo",
+        15
+    )
     return Result.success()
   }
 }

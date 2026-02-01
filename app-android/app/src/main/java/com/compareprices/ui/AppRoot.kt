@@ -71,6 +71,11 @@ fun AppRoot() {
       composable(Screen.Home.route) { HomeScreen() }
       composable(Screen.Compare.route) { com.compareprices.ui.compare.CompareScreen() }
       composable(Screen.Settings.route) { SettingsScreen() }
+      composable("price_history/{productId}/{productName}") { backStackEntry ->
+        val productId = backStackEntry.arguments?.getString("productId")?.toLongOrNull() ?: 0L
+        val productName = backStackEntry.arguments?.getString("productName") ?: ""
+        com.compareprices.ui.history.PriceHistoryScreen(productId, productName)
+      }
     }
   }
 }
