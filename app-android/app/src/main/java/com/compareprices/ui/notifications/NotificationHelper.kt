@@ -1,6 +1,7 @@
 package com.compareprices.ui.notifications
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -11,6 +12,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 
 class NotificationHelper(private val context: Context) {
+  @SuppressLint("MissingPermission")
   fun notifyPriceDrop(productName: String, priceLabel: String) {
     if (!hasNotificationPermission()) {
       return
