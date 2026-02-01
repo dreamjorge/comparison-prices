@@ -40,6 +40,10 @@ Build MVP for a LATAM grocery list price comparator app.
 - Use only metadata + price snapshots.
 - Avoid copying full catalogs from sources.
 
+## Web + backend compartido (nuevo)
+- Propuesta de monorepo con `app-web/`, `api/` y `packages/contracts` para contratos compartidos y generación de tipos.
+- Ver detalle en `docs/monorepo-structure.md`.
+
 ## Next steps (pick up)
 1) Generate Gradle wrapper jar and verify `./gradlew :app:tasks` runs
 2) Implement TICKET 1.2: Room models/DAOs migrations + basic repository layer
