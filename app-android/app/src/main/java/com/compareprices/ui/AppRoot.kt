@@ -68,9 +68,21 @@ fun AppRoot() {
       startDestination = Screen.Home.route,
       modifier = Modifier.padding(innerPadding)
     ) {
-      composable(Screen.Home.route) { HomeScreen() }
+      composable(Screen.Home.route) { 
+        HomeScreen(
+          onNavigateToHistory = { id, name -> navController.navigate("price_history/$id/$name") },
+          onNavigateToPaywall = { navController.navigate("paywall") }
+        ) 
+      }
       composable(Screen.Compare.route) { com.compareprices.ui.compare.CompareScreen() }
       composable(Screen.Settings.route) { SettingsScreen() }
+      composable("paywall") {
+        val premiumViewModel: com.compareprices.ui.premium.PremiumViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+        com.compareprices.ui.premium.PaywallScreen(
+          userPrefs = premiumViewModel.userPrefs,
+          onBack = { navController.popBackStack() }
+        )
+      }
       composable("price_history/{productId}/{productName}") { backStackEntry ->
         val productId = backStackEntry.arguments?.getString("productId")?.toLongOrNull() ?: 0L
         val productName = backStackEntry.arguments?.getString("productName") ?: ""
