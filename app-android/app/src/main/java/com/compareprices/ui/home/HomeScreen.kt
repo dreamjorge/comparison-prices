@@ -33,7 +33,8 @@ import androidx.compose.material3.TextButton
 @Composable
 fun HomeScreen(
   viewModel: HomeViewModel = hiltViewModel(),
-  onNavigateToHistory: (Long, String) -> Unit = { _, _ -> }
+          onNavigateToHistory: (Long, String) -> Unit = { _, _ -> },
+  onNavigateToPaywall: () -> Unit = {}
 ) {
   val uiState by viewModel.uiState.collectAsState()
   val list = uiState.list
@@ -53,7 +54,9 @@ fun HomeScreen(
         colors = CardDefaults.cardColors(
           containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+          .fillMaxWidth()
+          .androidx.compose.foundation.clickable { onNavigateToPaywall() }
       ) {
         Column(modifier = Modifier.padding(16.dp)) {
           Text(text = list.list.name, style = MaterialTheme.typography.titleLarge)
