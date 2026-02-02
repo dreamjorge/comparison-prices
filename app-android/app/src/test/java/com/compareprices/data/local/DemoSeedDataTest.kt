@@ -22,7 +22,8 @@ class DemoSeedDataTest {
             transactionRunner = transactionRunner,
             shoppingListDao = store.shoppingListDao,
             productDao = store.productDao,
-            listItemDao = store.listItemDao
+            listItemDao = store.listItemDao,
+            priceSnapshotDao = store.priceSnapshotDao
           )
         }
       }
@@ -47,7 +48,8 @@ class DemoSeedDataTest {
       transactionRunner = transactionRunner,
       shoppingListDao = store.shoppingListDao,
       productDao = store.productDao,
-      listItemDao = store.listItemDao
+      listItemDao = store.listItemDao,
+      priceSnapshotDao = store.priceSnapshotDao
     )
 
     assertEquals(3, store.products.size)
@@ -69,6 +71,7 @@ private class FakeSeedStore {
   private val shoppingListRecords = mutableListOf<ShoppingListEntity>()
   private val productRecords = mutableListOf<ProductEntity>()
   private val listItemRecords = mutableListOf<ListItemEntity>()
+  private val priceSnapshotRecords = mutableListOf<PriceSnapshotEntity>()
 
   val shoppingListDao: ShoppingListDao = object : ShoppingListDao {
     override suspend fun getAll(): List<ShoppingListEntity> = shoppingListRecords.toList()
@@ -135,8 +138,40 @@ private class FakeSeedStore {
     override suspend fun itemsForList(listId: Long): List<ListItemEntity> =
       listItemRecords.filter { it.listId == listId }
 
+    override suspend fun findItem(listId: Long, productId: Long): ListItemEntity? =
+      listItemRecords.firstOrNull { it.listId == listId && it.productId == productId }
+
+    override suspend fun upsert(item: ListItemEntity) {
+      val index = listItemRecords.indexOfFirst { it.id == item.id }
+      if (index >= 0) {
+        listItemRecords[index] = item
+      } else {
+        listItemRecords.add(item)
+      }
+    }
+
     override suspend fun upsertAll(items: List<ListItemEntity>) {
       listItemRecords.addAll(items)
+    }
+
+    override suspend fun deleteById(itemId: Long) {
+      listItemRecords.removeAll { it.id == itemId }
+    }
+
+    override suspend fun updateQuantity(itemId: Long, quantity: Double) {
+      val index = listItemRecords.indexOfFirst { it.id == itemId }
+      if (index >= 0) {
+        listItemRecords[index] = listItemRecords[index].copy(quantity = quantity)
+      }
+    }
+  }
+
+  val priceSnapshotDao: PriceSnapshotDao = object : PriceSnapshotDao {
+    override suspend fun historyForProduct(productId: Long): List<PriceSnapshotEntity> =
+      priceSnapshotRecords.filter { it.productId == productId }
+
+    override suspend fun insertAll(items: List<PriceSnapshotEntity>) {
+      priceSnapshotRecords.addAll(items)
     }
   }
 
