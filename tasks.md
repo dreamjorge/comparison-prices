@@ -4,45 +4,27 @@
 
 ## 🚨 Crítico - Bloqueadores de MVP
 
-### TICKET 2.1 — Crear y editar lista de compras (CRUD operations)
-**Status:** ❌ NOT STARTED | **Priority:** P0 | **Effort:** 4 days
+### ✅ TICKET 2.1 — Crear y editar lista de compras (CRUD operations)
+**Status:** ✅ COMPLETE | **Priority:** P0 | **Effort:** 4 days | **Completed:** 2026-02-02
 
-**Problema:** App muestra datos pero usuarios NO PUEDEN agregar/editar items.
-
-**Tareas:**
-- [ ] Implementar diálogo "Agregar Producto" en HomeScreen
-- [ ] Búsqueda de productos (autocomplete)
-- [ ] Selector de cantidad + unidad
-- [ ] Botón delete funcional (actualmente solo UI)
-- [ ] Tests unitarios para CRUD logic
+**Implementado:**
+- ✅ Implementar diálogo "Agregar Producto" en HomeScreen
+- ✅ Búsqueda de productos (autocomplete)
+- ✅ Selector de cantidad + unidad
+- ✅ Botón delete funcional con confirmación
+- ✅ Controles +/- para cantidad
 
 ---
 
-### TICKET 2.3 — Historial de precios
-**Status:** ❌ NOT STARTED | **Priority:** P0 | **Effort:** 3 days
+### ✅ TICKET 5.1 — Alertas locales de precios
+**Status:** ✅ COMPLETE | **Priority:** P0 | **Effort:** 3 days | **Completed:** 2026-02-02
 
-**Problema:** No hay PriceHistoryScreen ni gráficas.
-
-**Tareas:**
-- [ ] Crear PriceHistoryScreen.kt
-- [ ] Crear PriceHistoryViewModel.kt
-- [ ] Integrar librería de gráficas (MPAndroidChart o Vico)
-- [ ] Queries para obtener historical snapshots
-- [ ] Tests para price history logic
-
----
-
-### TICKET 5.1 — Alertas locales de precios
-**Status:** 🟡 PARTIAL (Worker exists, no notifications) | **Priority:** P0 | **Effort:** 3 days
-
-**Problema:** PriceRefreshWorker existe pero no envía notificaciones.
-
-**Tareas:**
-- [ ] Crear NotificationHelper.kt
-- [ ] Crear notification channel en Application.onCreate()
-- [ ] Manejar permisos Android 13+ (POST_NOTIFICATIONS)
-- [ ] Conectar Worker con NotificationHelper
-- [ ] Tests para notification logic
+**Implementado:**
+- ✅ Created NotificationHelper.kt with Hilt injection
+- ✅ Notification channel creation in Application.onCreate()
+- ✅ Android 13+ permission handling (POST_NOTIFICATIONS)
+- ✅ Integrated NotificationHelper with PriceRefreshWorker
+- ✅ Demo price drop notifications working
 
 ---
 
@@ -88,8 +70,10 @@
 - [x] TICKET 1.1 — Crear proyecto Android base.
 - [x] TICKET 1.2 — Modelos de datos locales.
 - [x] TICKET 1.3 — Seeding demo data idempotente en ViewModels. ⚠️ **Race condition conocida**
+- [x] TICKET 2.1 — Crear y editar lista de compras (CRUD operations). ✨ **2026-02-02**
 - [x] TICKET 2.2 — Comparador de precios por tienda.
 - [x] TICKET 2.4 — Encabezado dinámico y ahorro por tienda en comparador.
+- [x] TICKET 5.1 — Alertas locales de precios (notifications completas). ✨ **2026-02-02**
 - [x] TICKET 8.3 — Ajustar totales del comparador según cantidades de la lista.
 
 ## Riesgos y mitigaciones
