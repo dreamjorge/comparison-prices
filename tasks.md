@@ -51,8 +51,8 @@
 - [x] TICKET 9.1 — Documentar estructura monorepo web + backend compartido.
 - [x] TICKET 9.2 — Scaffold de frontend web base (app-web/ o web/) con routing, layout y configuración básica.
 - [x] TICKET 9.3 — Definir contratos compartidos (OpenAPI/DTOs) en packages/contracts con generación de tipos.
-- [x] TICKET 9.4 — Implementar endpoints mínimos para web (stores, search, list totals, price history) y ajustes de API. ✅ **Done: Node.js API with Express + TypeScript**
-- [x] TICKET 9.5 — Configurar CORS, autenticación y paginado (cursor/limit) para consumo web seguro. ✅ **Done: CORS allowed for web port + pagination logic implemented**
+- [x] TICKET 9.7 — Conectar el scaffold web con contratos reales y datos de API cuando estén disponibles. ✅ **Done: API integration in pages + live fetching**
+- [x] TICKET 9.8 — Integrar `@comparison-prices/contracts` en el frontend web para tipar las llamadas HTTP. ✅ **Done: Shared types.ts and typed fetch wrapper**
 
 ## Completados
 - [x] TICKET 0.1 — Definir alcance del MVP.
@@ -83,8 +83,6 @@
 
 ## Backlog (seguimiento)
 - [ ] TICKET 9.6 — Definir checklist CI para verificar generación de contratos desde `packages/contracts` y detectar divergencias.
-- [ ] TICKET 9.7 — Conectar el scaffold web con contratos reales y datos de API cuando estén disponibles.
-- [ ] TICKET 9.8 — Integrar `@comparison-prices/contracts` en el frontend web para tipar las llamadas HTTP.
 - [ ] TICKET 5.2 — Alertas de "lista más barata" (cambio de tienda óptima).
 - [ ] TICKET 6.3 — Rewarded ads (desbloquear features temporalmente).
 - [ ] TICKET 7.1 — Aumentar cobertura de tests a 80%+.

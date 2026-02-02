@@ -8,6 +8,8 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;
 
+import { ListItem } from "../../packages/contracts/src/types";
+
 app.use(cors({
     origin: ["http://localhost:4173", "http://127.0.0.1:4173"],
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -70,7 +72,7 @@ app.post("/v1/list-totals", (req, res) => {
 
     const totals = STORES.map(store => {
         let total = 0;
-        items.forEach((item: { productId: string; quantity: number }) => {
+        items.forEach((item: ListItem) => {
             const snapshot = PRICE_SNAPSHOTS.find(
                 s => s.productId === item.productId && s.storeId === store.id
             );
