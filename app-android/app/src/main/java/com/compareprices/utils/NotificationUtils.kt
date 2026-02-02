@@ -3,6 +3,7 @@ package com.compareprices.utils
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import androidx.core.app.NotificationCompat
 
 private const val CHANNEL_ID = "price_drop_channel"
@@ -10,6 +11,8 @@ private const val CHANNEL_NAME = "Price Drop Alerts"
 private const val NOTIFICATION_ID = 1
 
 fun createNotificationChannel(context: Context) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+
     val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     val channel = NotificationChannel(
