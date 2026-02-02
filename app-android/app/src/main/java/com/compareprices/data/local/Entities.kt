@@ -6,7 +6,10 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 
-@Entity(tableName = "products")
+@Entity(
+  tableName = "products",
+  indices = [Index(value = ["name", "brand", "defaultUnit"], unique = true)]
+)
 data class ProductEntity(
   @PrimaryKey(autoGenerate = true) val id: Long = 0,
   val name: String,
@@ -37,7 +40,10 @@ data class PriceSnapshotEntity(
   val capturedAt: Long
 )
 
-@Entity(tableName = "shopping_lists")
+@Entity(
+  tableName = "shopping_lists",
+  indices = [Index(value = ["name"], unique = true)]
+)
 data class ShoppingListEntity(
   @PrimaryKey(autoGenerate = true) val id: Long = 0,
   val name: String,

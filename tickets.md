@@ -4,6 +4,7 @@
 - TICKET 0.1: Drafted in `docs/mvp-scope.md`
 - TICKET 0.2: Drafted in `docs/wireframes/ux-flow.md` + `docs/wireframes/notes.md`
 - TICKET 1.1: Scaffold created in `app-android/` (needs build validation)
+- TICKET 1.2, 1.3, 2.2, 2.4, 8.3, 8.6: Implemented en `app-android/` con tests y migración de datos.
 - TICKET 1.2+: Pending
 
 ## Epic 0 — Preparación del proyecto
@@ -75,6 +76,7 @@ Inicializar proyecto Android moderno.
 **Tipo:** Task  
 **Prioridad:** P0  
 **Owner:** Agent 2
+**Status:** Done (2026-02-01)
 
 **Descripción**
 Definir entidades de base de datos.
@@ -90,6 +92,19 @@ Definir entidades de base de datos.
 - Room entities creadas
 - DAOs funcionales
 - Migraciones definidas
+
+---
+
+### TICKET 1.3 — Seeding demo data idempotente en ViewModels
+**Tipo:** Task  
+**Prioridad:** P0  
+**Owner:** Agent 2
+**Status:** Done (2026-02-01)
+
+**Descripción**
+across ViewModels
+
+If Home and Compare ViewModels are created close together (e.g., user switches tabs right after launch or Compose preloads destinations), both will call seedDemoDataIfNeeded concurrently. Because that helper only checks shoppingListDao.count() before inserting and isn’t atomic, both coroutines can observe count=0 and insert duplicate demo lists/items. That leaves multiple “Compra semanal” lists and makes observeLatestList() pick whichever insert finishes last. Consider centralizing seeding in a single owner or making the seed operation transactional/unique so it’s truly idempotente.
 
 ---
 
@@ -116,6 +131,7 @@ El usuario puede crear y editar una lista de compras.
 **Tipo:** Feature  
 **Prioridad:** P0  
 **Owner:** Agent 2
+**Status:** Done (2026-02-01)
 
 **Descripción**
 Calcular el total de la lista por tienda.
@@ -139,6 +155,23 @@ Mostrar evolución del precio de un producto.
 - Historial mínimo 7 días
 - Gráfica simple
 - Funciona offline
+
+---
+
+### TICKET 2.4 — Encabezado dinámico y ahorro por tienda en comparador
+**Tipo:** Feature  
+**Prioridad:** P1  
+**Owner:** Agent 2
+**Status:** Done (2026-02-01)
+
+**Descripción**
+Usar datos reales de la lista para mostrar el nombre de la lista y la fecha actual, y calcular el ahorro contra la siguiente tienda más barata en el comparador.
+
+**Criterios de aceptación**
+- El encabezado del comparador usa el nombre real de la lista activa.
+- La fecha usa el locale del usuario (no hardcode).
+- El ahorro vs siguiente tienda se calcula con datos reales (no mock).
+- Tests unitarios para el cálculo de ahorro y el formateo de moneda/fecha.
 
 ---
 
@@ -192,6 +225,22 @@ Integrar una fuente real de precios (API o feed permitido) para reemplazar datos
 - Endpoint o repositorio de datos consumible por la app
 - Sin scraping no autorizado
 - Documentación de límites de uso y actualización
+
+---
+
+### TICKET 3.4 — Cambios de precios por ubicación cercana
+**Tipo:** Feature  
+**Prioridad:** P1  
+**Owner:** Agent 3 (Data) + Agent 2 (Android)
+
+**Descripción**
+Agregar soporte para cambios de precios por ubicación, garantizando que cuando se consulten precios exista cobertura en una ubicación cercana.
+
+**Criterios de aceptación**
+- Los precios se asocian a una ubicación (zona/sucursal) con coordenadas o identificador.
+- Al consultar precios, se requiere una ubicación de referencia y se seleccionan precios de la ubicación más cercana disponible.
+- Se define y documenta un radio máximo de cercanía (fallback si no hay precios dentro del radio).
+- Pruebas que validen la selección por cercanía y el fallback cuando no hay cobertura.
 
 ---
 
@@ -354,3 +403,118 @@ Generar AAB y subir a beta interna.
 - Lista para Play Store
 
 ---
+
+### TICKET 8.1 — Auditoría de seeding y coverage de tests
+**Tipo:** Task  
+**Prioridad:** P1  
+**Owner:** Agent 2
+
+**Descripción**
+Revisar la estrategia de seeding de datos demo y ampliar los unit tests de concurrencia/atomicidad para evitar duplicados en escenarios de navegación rápida.
+
+**Criterios de aceptación**
+- Tests que simulen llamadas concurrentes a seeding sin duplicados.
+- Documentación de riesgos conocidos y mitigaciones.
+
+---
+
+### TICKET 8.2 — Endurecer deduplicación de productos demo
+**Tipo:** Task  
+**Prioridad:** P2  
+**Owner:** Agent 2
+
+**Descripción**
+Definir una estrategia de deduplicación para productos demo (por ejemplo, índices únicos por nombre+marca o IDs determinísticos) para evitar duplicados si se agregan nuevos flows de seeding.
+
+**Criterios de aceptación**
+- Propuesta documentada en el código o docs.
+- Se valida que los productos demo no se dupliquen en escenarios de re-seed.
+
+---
+
+### TICKET 8.3 — Ajustar totales del comparador según cantidades de la lista
+**Tipo:** Feature  
+**Prioridad:** P2  
+**Owner:** Agent 2
+**Status:** Done (2026-02-01)
+
+**Descripción**
+Actualizar el comparador para que los totales por tienda respeten las cantidades de cada ítem en la lista (multiplicando el precio unitario por la cantidad y unidad).
+
+**Criterios de aceptación**
+- Los totales por tienda reflejan cantidades reales de la lista.
+- Tests unitarios que validan el cálculo con cantidades distintas a 1.
+
+---
+
+### TICKET 8.4 — Vincular cantidades del comparador a IDs de producto
+**Tipo:** Feature  
+**Prioridad:** P2  
+**Owner:** Agent 2
+
+**Descripción**
+Evitar depender del nombre del producto para aplicar cantidades al total por tienda.
+
+**Criterios de aceptación**
+- Los totales usan el ID del producto (o una clave determinística) para aplicar cantidades.
+- Se documenta cómo se mapea el catálogo de precios a productos de la lista.
+
+---
+
+### TICKET 8.5 — Documentar deduplicación de datos demo
+**Tipo:** Task  
+**Prioridad:** P2  
+**Owner:** Agent 2
+
+**Descripción**
+Documentar una estrategia de deduplicación para datos demo (productos/listas) que evite duplicados cuando el seeding se dispare en paralelo.
+
+**Criterios de aceptación**
+- Documento con propuesta de clave natural/índices únicos para productos demo.
+- Recomendaciones para seeding idempotente y tests asociados.
+
+---
+
+### TICKET 8.6 — Normalizar brand nulo en productos demo
+**Tipo:** Task  
+**Prioridad:** P2  
+**Owner:** Agent 2
+**Status:** Done (2026-02-01)
+
+**Descripción**
+Evitar duplicados permitidos por `NULL` en índices únicos al normalizar `brand` para productos demo.
+
+**Criterios de aceptación**
+- Definir regla de normalización (`brand` vacío en lugar de nulo) antes de insertar productos demo.
+- Actualizar seeding y/o migraciones para alinear registros existentes.
+
+**Riesgos y mitigaciones**
+- Riesgo: inconsistencias si alguna capa espera `NULL` como ausencia de marca.
+- Mitigación: normalizar `brand` en seeding/migraciones y tratar `\"\"` como “sin marca” en UI/consultas.
+
+### TICKET 8.7 — Normalizar brand vacío en UI y repositorios
+**Tipo:** Task  
+**Prioridad:** P2  
+**Owner:** Agent 2
+
+**Descripción**
+Alinear la capa de presentación y repositorios para que `""` se interprete como “sin marca” y evitar divergencias con datos legacy.
+
+**Criterios de aceptación**
+- Helper compartido para mapear `""` a valor legible en UI.
+- Pruebas unitarias que validen el mapeo en casos nulos/vacíos.
+
+---
+
+### TICKET 8.8 — Revisar merge de cantidades en deduplicación de list_items
+**Tipo:** Task  
+**Prioridad:** P2  
+**Owner:** Agent 2
+
+**Descripción**
+Cuando una migración remapea `productId` y deduplica `list_items`, es posible que existan items con cantidades distintas para el mismo `listId` y `productId`. Validar si corresponde fusionar cantidades en lugar de conservar solo el primer registro.
+
+**Criterios de aceptación**
+- Análisis del impacto de la deduplicación actual (por `MIN(id)`).
+- Definición de estrategia para fusionar cantidades o mantener el comportamiento actual.
+- Actualizar migraciones/tests si se decide fusionar.

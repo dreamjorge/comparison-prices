@@ -2,6 +2,7 @@
 
 ## Status update (2026-02-01)
 - Agent 2 added: Compare screen sorts stores by total price, highlights the cheapest option, includes unit tests for price parsing/sorting, and now includes Walmart demo pricing data for real-supermarket search context.
+- Agent 2 added: Settings screen now uses structured section data for MVP defaults, with unit tests validating the default settings content.
 
 ## Status update (2026-01-25)
 - Agent 1 outputs drafted: `docs/mvp-scope.md`, `docs/wireframes/ux-flow.md`, `docs/wireframes/notes.md`
@@ -210,3 +211,9 @@
 - “Crea checklist de QA + Play Store Data Safety + política de ads. Configura CI para build AAB y pruebas unitarias.”
 
 ---
+
+## Reglas adicionales para desarrollo de features
+- Cada vez que se desarrolle una feature, crear o actualizar unit tests que cubran el nuevo comportamiento.
+- Documentar posibles issues/bugs introducidos por el cambio y cómo se mitigan.
+- Ejecutar los unit tests relevantes y registrar el resultado.
+- Agregar un nuevo ticket al final del backlog para trabajo futuro derivado del desarrollo actual.
