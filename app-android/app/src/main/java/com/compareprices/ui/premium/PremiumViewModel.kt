@@ -1,7 +1,6 @@
 package com.compareprices.ui.premium
 
 import androidx.lifecycle.ViewModel
-<<<<<<< HEAD
 import androidx.lifecycle.viewModelScope
 import com.compareprices.data.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,15 +8,10 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-=======
-import com.compareprices.data.local.UserPrefs
-import dagger.hilt.android.lifecycle.HiltViewModel
->>>>>>> feature/develop-tickets
 import javax.inject.Inject
 
 @HiltViewModel
 class PremiumViewModel @Inject constructor(
-<<<<<<< HEAD
   private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
@@ -41,7 +35,3 @@ class PremiumViewModel @Inject constructor(
     }
   }
 }
-=======
-    val userPrefs: UserPrefs
-) : ViewModel()
->>>>>>> feature/develop-tickets

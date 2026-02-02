@@ -39,29 +39,17 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.compareprices.ui.components.AdBanner
 import com.compareprices.data.local.ListItemWithProduct
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.TextButton
 
 @Composable
 fun HomeScreen(
-<<<<<<< HEAD
   onNavigateToHistory: (Long) -> Unit = {},
   viewModel: HomeViewModel = hiltViewModel()
-=======
-  viewModel: HomeViewModel = hiltViewModel(),
-          onNavigateToHistory: (Long, String) -> Unit = { _, _ -> },
-  onNavigateToPaywall: () -> Unit = {}
->>>>>>> feature/develop-tickets
 ) {
   val uiState by viewModel.uiState.collectAsState()
   val list = uiState.list
   var showAddDialog by remember { mutableStateOf(false) }
   var showDeleteConfirm by remember { mutableStateOf<Long?>(null) }
 
-<<<<<<< HEAD
   Scaffold(
     floatingActionButton = {
       FloatingActionButton(onClick = { showAddDialog = true }) {
@@ -71,68 +59,54 @@ fun HomeScreen(
   ) { padding ->
     if (list == null) {
       EmptyHomeState(modifier = Modifier.padding(padding))
-      return@Scaffold
-=======
-  if (list == null) {
-    EmptyHomeState()
-    return
-  }
-
-  LazyColumn(
-    modifier = Modifier.fillMaxSize(),
-    contentPadding = PaddingValues(16.dp),
-    verticalArrangement = Arrangement.spacedBy(12.dp)
-  ) {
-    item {
-      Card(
-        colors = CardDefaults.cardColors(
-          containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        modifier = Modifier
-          .fillMaxWidth()
-          .clickable { onNavigateToPaywall() }
-      ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-          Text(text = list.list.name, style = MaterialTheme.typography.titleLarge)
-          Spacer(modifier = Modifier.height(4.dp))
-          Text(
-            text = "${list.items.size} productos en tu lista",
-            style = MaterialTheme.typography.bodyMedium
-          )
-        }
-      }
-    }
-
-    items(list.items) { listItem ->
-      ListItemCard(
-        listItem = listItem,
-        onDelete = { viewModel.deleteItem(listItem.item.id) },
-        onUpdateQuantity = { delta -> 
-          viewModel.updateItemQuantity(listItem.item.id, listItem.item.quantity + delta)
+    } else {
+      HomeWithAds(
+        padding = padding,
+        list = list,
+        onDelete = { showDeleteConfirm = it },
+        onQuantityChange = { id, quantity -> 
+          // HomeViewModel expects absolute quantity
+          viewModel.updateItemQuantity(id, quantity)
         },
-        onClick = { onNavigateToHistory(listItem.product.id, listItem.product.name) }
+        onNavigateToHistory = onNavigateToHistory
       )
     }
 
-    if (!uiState.isPro) {
-      item {
-        com.compareprices.ui.components.AdBanner(modifier = Modifier.padding(top = 8.dp))
-      }
->>>>>>> feature/develop-tickets
+    if (showAddDialog) {
+      com.compareprices.ui.home.AddItemDialog(
+        onDismiss = { showAddDialog = false },
+        searchProducts = viewModel::searchProducts,
+        onConfirm = { productId, quantity, unit ->
+          viewModel.addItemToList(productId, quantity, unit)
+        }
+      )
     }
 
-    HomeWithAds(
-      padding = padding,
-      list = list,
-      onDelete = { showDeleteConfirm = it },
-      onQuantityChange = { id, delta -> viewModel.updateItemQuantity(id, delta) },
-      onNavigateToHistory = onNavigateToHistory
-    )
+    showDeleteConfirm?.let { itemId ->
+      AlertDialog(
+        onDismissRequest = { showDeleteConfirm = null },
+        title = { Text("Eliminar producto") },
+        text = { Text("¿Seguro que quieres eliminar este producto de la lista?") },
+        confirmButton = {
+          TextButton(onClick = {
+            viewModel.deleteItem(itemId)
+            showDeleteConfirm = null
+          }) {
+            Text("Eliminar")
+          }
+        },
+        dismissButton = {
+          TextButton(onClick = { showDeleteConfirm = null }) {
+            Text("Cancelar")
+          }
+        }
+      )
+    }
   }
 }
 
 @Composable
-fun HomeWithAds(
+private fun HomeWithAds(
   padding: PaddingValues,
   list: com.compareprices.data.local.ShoppingListWithItems,
   onDelete: (Long) -> Unit,
@@ -174,8 +148,8 @@ fun HomeWithAds(
         ListItemCard(
           listItem = listItem,
           onDelete = { onDelete(listItem.item.id) },
-          onQuantityChange = { delta ->
-            onQuantityChange(listItem.item.id, delta)
+          onQuantityUpdate = { newQuantity ->
+            onQuantityChange(listItem.item.id, newQuantity)
           },
           onClickProduct = { onNavigateToHistory(listItem.product.id) }
         )
@@ -185,38 +159,6 @@ fun HomeWithAds(
     if (!isPremium) {
       AdBanner()
     }
-  }
-}
-
-  if (showAddDialog) {
-    AddItemDialog(
-      onDismiss = { showAddDialog = false },
-      searchProducts = viewModel::searchProducts,
-      onConfirm = { productId, quantity, unit ->
-        viewModel.addItemToList(productId, quantity, unit)
-      }
-    )
-  }
-
-  showDeleteConfirm?.let { itemId ->
-    AlertDialog(
-      onDismissRequest = { showDeleteConfirm = null },
-      title = { Text("Eliminar producto") },
-      text = { Text("¿Seguro que quieres eliminar este producto de la lista?") },
-      confirmButton = {
-        TextButton(onClick = {
-          viewModel.deleteItem(itemId)
-          showDeleteConfirm = null
-        }) {
-          Text("Eliminar")
-        }
-      },
-      dismissButton = {
-        TextButton(onClick = { showDeleteConfirm = null }) {
-          Text("Cancelar")
-        }
-      }
-    )
   }
 }
 
@@ -246,28 +188,16 @@ private fun EmptyHomeState(modifier: Modifier = Modifier) {
 private fun ListItemCard(
   listItem: ListItemWithProduct,
   onDelete: () -> Unit,
-<<<<<<< HEAD
-  onQuantityChange: (Double) -> Unit,
+  onQuantityUpdate: (Double) -> Unit,
   onClickProduct: () -> Unit = {}
 ) {
   Card(modifier = Modifier.fillMaxWidth()) {
-=======
-  onUpdateQuantity: (Double) -> Unit,
-  onClick: () -> Unit
-) {
-  Card(
-    modifier = Modifier
-      .fillMaxWidth()
-      .clickable(onClick = onClick)
-  ) {
->>>>>>> feature/develop-tickets
     Column(modifier = Modifier.padding(16.dp)) {
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
-<<<<<<< HEAD
         Column(
           modifier = Modifier
             .weight(1f)
@@ -283,80 +213,32 @@ private fun ListItemCard(
           val brand = listItem.product.brand
           Text(
             text = if (brand.isNullOrBlank()) "Marca generica" else brand,
-            style = MaterialTheme.typography.bodySmall
-          )
-        }
-        IconButton(onClick = onDelete) {
-          Icon(Icons.Default.Delete, "Eliminar")
-        }
-      }
-
-      Spacer(modifier = Modifier.height(8.dp))
-
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        Text(
-          text = listItem.item.unit,
-          style = MaterialTheme.typography.bodyMedium
-        )
-        Row(
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          IconButton(onClick = { onQuantityChange(-1.0) }) {
-            Text("-", style = MaterialTheme.typography.titleMedium)
-          }
-          Text(
-            text = "${listItem.item.quantity.toInt()}",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(horizontal = 8.dp)
-          )
-          IconButton(onClick = { onQuantityChange(1.0) }) {
-            Text("+", style = MaterialTheme.typography.titleMedium)
-          }
-=======
-        Column(modifier = Modifier.weight(1f)) {
-          Text(
-            text = listItem.product.name,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-          )
-          val brand = listItem.product.brand
-          Text(
-            text = if (brand.isNullOrBlank()) "Marca Genérica" else brand,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
         }
-        androidx.compose.material3.IconButton(onClick = onDelete) {
-          androidx.compose.material3.Icon(
-            imageVector = androidx.compose.material.icons.Icons.Default.Delete,
-            contentDescription = "Eliminar",
-            tint = MaterialTheme.colorScheme.error
-          )
+        IconButton(onClick = onDelete) {
+          Icon(Icons.Default.Delete, "Eliminar", tint = MaterialTheme.colorScheme.error)
         }
       }
-      
+
       Spacer(modifier = Modifier.height(8.dp))
-      
+
       Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
       ) {
-        androidx.compose.material3.TextButton(onClick = { onUpdateQuantity(-1.0) }) {
-          Text("-")
+        TextButton(onClick = { onQuantityUpdate(listItem.item.quantity - 1.0) }) {
+          Text("-", style = MaterialTheme.typography.titleLarge)
         }
         Text(
           text = "${listItem.item.quantity.toInt()} ${listItem.item.unit}",
-          style = MaterialTheme.typography.bodyMedium,
+          style = MaterialTheme.typography.titleMedium,
           modifier = Modifier.padding(horizontal = 8.dp)
         )
-        androidx.compose.material3.TextButton(onClick = { onUpdateQuantity(1.0) }) {
-          Text("+")
->>>>>>> feature/develop-tickets
+        TextButton(onClick = { onQuantityUpdate(listItem.item.quantity + 1.0) }) {
+          Text("+", style = MaterialTheme.typography.titleLarge)
         }
       }
     }

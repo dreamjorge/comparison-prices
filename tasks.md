@@ -53,6 +53,7 @@
 - [x] TICKET 9.3 — Definir contratos compartidos (OpenAPI/DTOs) en packages/contracts con generación de tipos.
 - [x] TICKET 9.7 — Conectar el scaffold web con contratos reales y datos de API cuando estén disponibles. ✅ **Done: API integration in pages + live fetching**
 - [x] TICKET 9.8 — Integrar `@comparison-prices/contracts` en el frontend web para tipar las llamadas HTTP. ✅ **Done: Shared types.ts and typed fetch wrapper**
+- [x] TICKET 9.9 — Estabilización post-merge de Android (resolución de conflictos KSP/Hilt). ✅ **Done: Resolved 12+ files with conflict markers**
 
 ## Completados
 - [x] TICKET 0.1 — Definir alcance del MVP.

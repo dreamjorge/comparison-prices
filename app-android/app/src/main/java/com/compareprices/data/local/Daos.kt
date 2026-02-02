@@ -99,10 +99,9 @@ interface ListItemDao {
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun upsertAll(items: List<ListItemEntity>)
 
-<<<<<<< HEAD
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun insert(item: ListItemEntity): Long
-=======
+
   @Transaction
   suspend fun insertOrUpdateQuantity(item: ListItemEntity) {
     val existing = findItem(item.listId, item.productId)
@@ -112,15 +111,10 @@ interface ListItemDao {
       upsert(item)
     }
   }
->>>>>>> feature/develop-tickets
 
   @Query("DELETE FROM list_items WHERE id = :itemId")
   suspend fun deleteById(itemId: Long)
 
   @Query("UPDATE list_items SET quantity = :quantity WHERE id = :itemId")
-<<<<<<< HEAD
-  suspend fun updateQuantity(itemId: Long, quantity:Double)
-=======
   suspend fun updateQuantity(itemId: Long, quantity: Double)
->>>>>>> feature/develop-tickets
 }
