@@ -3,11 +3,11 @@ import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { routesForTest } from "../test-utils/routesForTest";
 
 describe("App routing", () => {
-  it("renders the home route by default", () => {
+  it("renders the home route by default", async () => {
     const router = createMemoryRouter(routesForTest, { initialEntries: ["/"] });
     render(<RouterProvider router={router} />);
 
-    expect(screen.getByText("Resumen rápido")).toBeInTheDocument();
+    expect(await screen.findByText("Panel de Control")).toBeInTheDocument();
     expect(screen.getByText("Tiendas disponibles")).toBeInTheDocument();
   });
 

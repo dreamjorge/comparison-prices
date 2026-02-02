@@ -3,18 +3,18 @@ import { HomePage } from "../pages/HomePage";
 import { BrowserRouter } from "react-router-dom";
 
 describe("HomePage", () => {
-    it("renders the home dashboard correctly", () => {
+    it("renders the home dashboard correctly", async () => {
         render(
             <BrowserRouter>
                 <HomePage />
             </BrowserRouter>
         );
 
-        expect(screen.getByText("Resumen rápido")).toBeInTheDocument();
+        expect(await screen.findByText("Panel de Control")).toBeInTheDocument();
         expect(screen.getByText("Tiendas disponibles")).toBeInTheDocument();
     });
 
-    it("contains summary cards", () => {
+    it("contains summary cards", async () => {
         render(
             <BrowserRouter>
                 <HomePage />
