@@ -82,7 +82,7 @@
   **Mitigación:** Priorizar TICKET 2.1 antes que features avanzadas.
 
 ## Backlog (seguimiento)
-- [ ] TICKET 9.6 — Definir checklist CI para verificar generación de contratos desde `packages/contracts` y detectar divergencias.
+- [x] TICKET 9.6 — Definir checklist CI para verificar generación de contratos desde `packages/contracts` y detectar divergencias. ✅ **Done: scripts/verify.sh + CI Job**
 - [ ] TICKET 5.2 — Alertas de "lista más barata" (cambio de tienda óptima).
 - [ ] TICKET 6.3 — Rewarded ads (desbloquear features temporalmente).
 - [ ] TICKET 7.1 — Aumentar cobertura de tests a 80%+.
