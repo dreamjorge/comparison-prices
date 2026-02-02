@@ -31,6 +31,12 @@ interface ProductDao {
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun insertAll(items: List<ProductEntity>): List<Long>
+
+  @Query("SELECT * FROM products WHERE name LIKE :query OR brand LIKE :query ORDER BY name ASC LIMIT 20")
+  fun searchByName(query: String): Flow<List<ProductEntity>>
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insert(item: ProductEntity): Long
 }
 
 @Dao
@@ -80,4 +86,13 @@ interface ListItemDao {
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun upsertAll(items: List<ListItemEntity>)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insert(item: ListItemEntity): Long
+
+  @Query("DELETE FROM list_items WHERE id = :itemId")
+  suspend fun deleteById(itemId: Long)
+
+  @Query("UPDATE list_items SET quantity = :quantity WHERE id = :itemId")
+  suspend fun updateQuantity(itemId: Long, quantity:Double)
 }
