@@ -1,11 +1,17 @@
 # 📋 Backlog de Tickets — Android App Comparador de Precios (LATAM)
 
-## Status summary (2026-01-25)
+> **📚 Additional Documentation for Agents:**
+> - **Web App Epics**: See [docs/web-epics-proposal.md](docs/web-epics-proposal.md) for 21 tickets across 6 epics (Epic 9-14)
+> - **Platform Alignment**: See [docs/platform-alignment.md](docs/platform-alignment.md) for Android ↔ Web feature parity analysis and 7 alignment tickets (Epic 15)
+
+## Status summary (2026-02-01)
 - TICKET 0.1: Drafted in `docs/mvp-scope.md`
 - TICKET 0.2: Drafted in `docs/wireframes/ux-flow.md` + `docs/wireframes/notes.md`
 - TICKET 1.1: Scaffold created in `app-android/` (needs build validation)
 - TICKET 1.2, 1.3, 2.2, 2.4, 8.3, 8.6: Implemented en `app-android/` con tests y migración de datos.
 - TICKET 1.2+: Pending
+- **Web App**: Minimal implementation - see platform alignment doc for gaps and roadmap
+
 
 ## Epic 0 — Preparación del proyecto
 ---

@@ -1,10 +1,3 @@
-# 🛠 Project Skills & Automation
-
-This document defines the specialized skills and automated tasks for each agent role in the **Comparison Prices (LATAM)** project.
-
----
-
-## 📱 Android Core (Agent 2)
 **Responsibility**: Jetpack Compose UI, Room DB, WorkManager, and Local Business Logic.
 
 - **Build & Test**:
