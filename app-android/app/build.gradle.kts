@@ -71,18 +71,14 @@ dependencies {
   implementation(libs.androidx.hilt.work)
   ksp(libs.androidx.hilt.compiler)
 
-<<<<<<< HEAD
-  implementation("androidx.datastore:datastore-preferences:1.1.0")
+  implementation(libs.androidx.datastore.preferences)
 
   // Vico Charts for price history
-  implementation("com.patrykandpatrick.vico:compose:1.13.1")
-  implementation("com.patrykandpatrick.vico:compose-m3:1.13.1")
-  implementation("com.patrykandpatrick.vico:core:1.13.1")
+  implementation(libs.vico.compose)
+  implementation(libs.vico.compose.m3)
+  implementation(libs.vico.core)
 
-  implementation("com.google.android.gms:play-services-ads:23.0.0")
-=======
   implementation(libs.play.services.ads)
->>>>>>> feature/develop-tickets
 
   testImplementation(libs.junit)
 
