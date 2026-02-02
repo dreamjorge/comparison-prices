@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SettingsScreen() {
+  val sections = defaultSettingsSections()
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
     contentPadding = PaddingValues(16.dp),
@@ -39,20 +40,10 @@ fun SettingsScreen() {
       SettingsHeader()
     }
 
-    item {
-      PreferencesCard()
-    }
-
-    item {
-      AlertsCard()
-    }
-
-    item {
-      PlanCard()
-    }
-
-    item {
-      AboutCard()
+    sections.forEach { section ->
+      item {
+        SettingsSectionCard(section)
+      }
     }
   }
 }
@@ -74,66 +65,15 @@ private fun SettingsHeader() {
 }
 
 @Composable
-private fun PreferencesCard() {
-  SettingsCard(title = "Preferencias de compra") {
-    SettingsRow(
-      icon = { Icon(Icons.Outlined.LocationOn, contentDescription = null) },
-      title = "Zona",
-      value = "Centro - CDMX"
-    )
-    SettingsRow(
-      icon = { Icon(Icons.Outlined.Storefront, contentDescription = null) },
-      title = "Tiendas activas",
-      value = "Walmart, Soriana, Chedraui"
-    )
-  }
-}
-
-@Composable
-private fun AlertsCard() {
-  SettingsCard(title = "Alertas y precios") {
-    SettingsRow(
-      icon = { Icon(Icons.Outlined.NotificationsActive, contentDescription = null) },
-      title = "Alertas",
-      value = "Baja de precio semanal"
-    )
-    SettingsRow(
-      icon = { Icon(Icons.Outlined.Payments, contentDescription = null) },
-      title = "Meta de ahorro",
-      value = "Ahorrar $120 esta semana"
-    )
-  }
-}
-
-@Composable
-private fun PlanCard() {
-  SettingsCard(title = "Plan") {
-    SettingsRow(
-      icon = { Icon(Icons.Outlined.Payments, contentDescription = null) },
-      title = "Plan actual",
-      value = "Free con anuncios"
-    )
-    SettingsRow(
-      icon = { Icon(Icons.Outlined.Payments, contentDescription = null) },
-      title = "Upgrade",
-      value = "Pro: sin anuncios + historial extendido"
-    )
-  }
-}
-
-@Composable
-private fun AboutCard() {
-  SettingsCard(title = "Acerca de") {
-    SettingsRow(
-      icon = { Icon(Icons.Outlined.Info, contentDescription = null) },
-      title = "Version",
-      value = "MVP 0.1"
-    )
-    SettingsRow(
-      icon = { Icon(Icons.Outlined.Info, contentDescription = null) },
-      title = "Soporte",
-      value = "hola@comparador.app"
-    )
+private fun SettingsSectionCard(section: SettingsSection) {
+  SettingsCard(title = section.title) {
+    section.items.forEach { item ->
+      SettingsRow(
+        icon = { SettingsIconBadge(item.icon) },
+        title = item.title,
+        value = item.value
+      )
+    }
   }
 }
 
@@ -194,4 +134,16 @@ private fun SettingsRow(
       )
     }
   }
+}
+
+@Composable
+private fun SettingsIconBadge(icon: SettingsIcon) {
+  val vector = when (icon) {
+    SettingsIcon.Location -> Icons.Outlined.LocationOn
+    SettingsIcon.Storefront -> Icons.Outlined.Storefront
+    SettingsIcon.Notifications -> Icons.Outlined.NotificationsActive
+    SettingsIcon.Payments -> Icons.Outlined.Payments
+    SettingsIcon.Info -> Icons.Outlined.Info
+  }
+  Icon(vector, contentDescription = null)
 }

@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,14 +29,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.compareprices.data.local.ListItemWithProduct
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
+import kotlin.math.roundToInt
 
 @Composable
-fun CompareScreen() {
+fun CompareScreen(viewModel: CompareViewModel = hiltViewModel()) {
+  val uiState by viewModel.uiState.collectAsState()
   val storePrices = remember { demoStorePrices() }
+  val listItems = uiState.list?.items.orEmpty()
+  val listStorePrices = filterStorePricesByList(storePrices, listItems)
   var query by rememberSaveable { mutableStateOf("") }
+  val locale = Locale.getDefault()
+  val quantityByProduct = buildQuantityByProduct(listItems, locale)
 
-  val filteredStores = sortStorePricesByTotal(filterStorePrices(query, storePrices))
-  val cheapestTotal = cheapestTotalValue(filteredStores)
+  val filteredStores = sortStorePricesByTotal(
+    storePrices = filterStorePrices(query, listStorePrices),
+    quantityByProduct = quantityByProduct,
+    locale = locale
+  )
+  val comparisons = buildStoreComparisons(
+    storePrices = filteredStores,
+    quantityByProduct = quantityByProduct,
+    locale = locale
+  )
+  val cheapestTotal = comparisons.minOfOrNull { it.total }
+  val listName = uiState.list?.list?.name ?: "Lista actual"
+  val dateLabel = remember { formatTodayLabel() }
 
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
@@ -44,6 +69,17 @@ fun CompareScreen() {
   ) {
     item {
       Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+          text = listName,
+          style = MaterialTheme.typography.titleLarge,
+          fontWeight = FontWeight.SemiBold
+        )
+        Text(
+          text = dateLabel,
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(12.dp))
         Text(
           text = "Buscar precios por supermercado",
           style = MaterialTheme.typography.titleLarge,
@@ -84,15 +120,26 @@ fun CompareScreen() {
       }
     }
 
-    items(filteredStores) { store ->
-      val isCheapest = cheapestTotal != null && parseTotalPrice(store.totalLabel) == cheapestTotal
-      StorePriceCard(store = store, isCheapest = isCheapest)
+    items(comparisons) { comparison ->
+      val store = comparison.store
+      val isCheapest = cheapestTotal != null && comparison.total == cheapestTotal
+      StorePriceCard(
+        store = store,
+        isCheapest = isCheapest,
+        savingsVsNext = comparison.savingsVsNext,
+        total = comparison.total
+      )
     }
   }
 }
 
 @Composable
-private fun StorePriceCard(store: StorePrice, isCheapest: Boolean) {
+private fun StorePriceCard(
+  store: StorePrice,
+  isCheapest: Boolean,
+  savingsVsNext: Int?,
+  total: Int
+) {
   Card(modifier = Modifier.fillMaxWidth()) {
     Column(modifier = Modifier.padding(16.dp)) {
       Row(
@@ -109,6 +156,14 @@ private fun StorePriceCard(store: StorePrice, isCheapest: Boolean) {
             text = store.zone,
             style = MaterialTheme.typography.bodySmall
           )
+          if (savingsVsNext != null && savingsVsNext > 0) {
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+              text = "Ahorro vs siguiente: ${formatCurrency(savingsVsNext)}",
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+          }
           if (isCheapest) {
             Spacer(modifier = Modifier.height(6.dp))
             Surface(
@@ -126,7 +181,7 @@ private fun StorePriceCard(store: StorePrice, isCheapest: Boolean) {
           }
         }
         Text(
-          text = store.totalLabel,
+          text = formatCurrency(total),
           style = MaterialTheme.typography.titleMedium,
           fontWeight = FontWeight.SemiBold
         )
@@ -148,7 +203,6 @@ private fun StorePriceCard(store: StorePrice, isCheapest: Boolean) {
 internal data class StorePrice(
   val storeName: String,
   val zone: String,
-  val totalLabel: String,
   val items: List<StoreItemPrice>
 )
 
@@ -157,12 +211,17 @@ internal data class StoreItemPrice(
   val price: String
 )
 
+internal data class StoreComparison(
+  val store: StorePrice,
+  val savingsVsNext: Int?,
+  val total: Int
+)
+
 internal fun demoStorePrices(): List<StorePrice> {
   return listOf(
     StorePrice(
       storeName = "Super Norte",
       zone = "Recoleta",
-      totalLabel = "$ 4.560",
       items = listOf(
         StoreItemPrice(product = "Leche entera", price = "$ 1.580"),
         StoreItemPrice(product = "Pan integral", price = "$ 1.100"),
@@ -172,7 +231,6 @@ internal fun demoStorePrices(): List<StorePrice> {
     StorePrice(
       storeName = "Walmart",
       zone = "Ciudad de México",
-      totalLabel = "$ 4.390",
       items = listOf(
         StoreItemPrice(product = "Leche entera", price = "$ 1.450"),
         StoreItemPrice(product = "Pan integral", price = "$ 1.020"),
@@ -182,7 +240,6 @@ internal fun demoStorePrices(): List<StorePrice> {
     StorePrice(
       storeName = "Ahorro Max",
       zone = "Palermo",
-      totalLabel = "$ 4.830",
       items = listOf(
         StoreItemPrice(product = "Leche entera", price = "$ 1.620"),
         StoreItemPrice(product = "Pan integral", price = "$ 1.090"),
@@ -192,7 +249,6 @@ internal fun demoStorePrices(): List<StorePrice> {
     StorePrice(
       storeName = "Mercado Central",
       zone = "Belgrano",
-      totalLabel = "$ 4.420",
       items = listOf(
         StoreItemPrice(product = "Leche entera", price = "$ 1.470"),
         StoreItemPrice(product = "Pan integral", price = "$ 980"),
@@ -215,15 +271,94 @@ internal fun filterStorePrices(query: String, storePrices: List<StorePrice>): Li
   }
 }
 
-internal fun sortStorePricesByTotal(storePrices: List<StorePrice>): List<StorePrice> {
-  return storePrices.sortedBy { parseTotalPrice(it.totalLabel) }
+internal fun filterStorePricesByList(
+  storePrices: List<StorePrice>,
+  listItems: List<ListItemWithProduct>
+): List<StorePrice> {
+  if (listItems.isEmpty()) {
+    return storePrices
+  }
+
+  val wantedProducts = listItems
+    .map { it.product.name.lowercase(Locale.getDefault()) }
+    .toSet()
+
+  return storePrices.mapNotNull { store ->
+    val filteredItems = store.items.filter { item ->
+      item.product.lowercase(Locale.getDefault()) in wantedProducts
+    }
+    if (filteredItems.isEmpty()) {
+      null
+    } else {
+      store.copy(items = filteredItems)
+    }
+  }
 }
 
-internal fun cheapestTotalValue(storePrices: List<StorePrice>): Int? {
-  return storePrices.minOfOrNull { parseTotalPrice(it.totalLabel) }
+internal fun buildQuantityByProduct(
+  listItems: List<ListItemWithProduct>,
+  locale: Locale = Locale.getDefault()
+): Map<String, Double> {
+  return listItems
+    .groupBy { it.product.name.lowercase(locale) }
+    .mapValues { (_, items) -> items.sumOf { it.item.quantity } }
+}
+
+internal fun sortStorePricesByTotal(
+  storePrices: List<StorePrice>,
+  quantityByProduct: Map<String, Double>,
+  locale: Locale = Locale.getDefault()
+): List<StorePrice> {
+  return storePrices.sortedBy { storeTotalValue(it, quantityByProduct, locale) }
+}
+
+internal fun buildStoreComparisons(
+  storePrices: List<StorePrice>,
+  quantityByProduct: Map<String, Double>,
+  locale: Locale = Locale.getDefault()
+): List<StoreComparison> {
+  return storePrices.mapIndexed { index, store ->
+    val nextStore = storePrices.getOrNull(index + 1)
+    val storeTotal = storeTotalValue(store, quantityByProduct, locale)
+    val savings = nextStore?.let {
+      storeTotalValue(it, quantityByProduct, locale) - storeTotal
+    }
+    StoreComparison(store, savings, storeTotal)
+  }
+}
+
+internal fun storeTotalValue(
+  store: StorePrice,
+  quantityByProduct: Map<String, Double>,
+  locale: Locale = Locale.getDefault()
+): Int {
+  val total = store.items.sumOf { item ->
+    val quantity = quantityByProduct[item.product.lowercase(locale)] ?: 1.0
+    parseTotalPrice(item.price) * quantity
+  }
+  return total.roundToInt()
 }
 
 internal fun parseTotalPrice(totalLabel: String): Int {
   val digits = totalLabel.filter { it.isDigit() }
   return digits.toIntOrNull() ?: 0
+}
+
+internal fun formatCurrency(value: Int, locale: Locale = Locale.getDefault()): String {
+  val formatter = NumberFormat.getCurrencyInstance(locale).apply {
+    maximumFractionDigits = 0
+    minimumFractionDigits = 0
+  }
+  return formatter.format(value)
+}
+
+internal fun formatTodayLabel(
+  date: Date = Date(),
+  locale: Locale = Locale.getDefault(),
+  timeZone: TimeZone = TimeZone.getDefault()
+): String {
+  val formatter = SimpleDateFormat("d MMM yyyy", locale).apply {
+    this.timeZone = timeZone
+  }
+  return formatter.format(date)
 }
