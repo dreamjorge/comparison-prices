@@ -8,7 +8,7 @@ describe("App routing", () => {
     render(<RouterProvider router={router} />);
 
     expect(screen.getByText("Resumen rápido")).toBeInTheDocument();
-    expect(screen.getByText("Lista activa")).toBeInTheDocument();
+    expect(screen.getByText("Tiendas disponibles")).toBeInTheDocument();
   });
 
   it("renders the compare route", () => {
