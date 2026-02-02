@@ -61,8 +61,51 @@ class NotificationHelper(private val context: Context) {
     manager.createNotificationChannel(channel)
   }
 
-  private companion object {
-    const val CHANNEL_ID = "price_alerts"
-    const val CHANNEL_NAME = "Alertas de precios"
+  companion object {
+    private const val CHANNEL_ID = "price_alerts"
+    private const val CHANNEL_NAME = "Alertas de precios"
+
+    /**
+     * Static helper to create notification channel (for app initialization).
+     * Called from ComparePricesApp.onCreate()
+     */
+    fun createNotificationChannel(context: Context) {
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+        return
+      }
+
+      val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+      if (manager.getNotificationChannel(CHANNEL_ID) != null) {
+        return
+      }
+
+      val channel = NotificationChannel(
+        CHANNEL_ID,
+        CHANNEL_NAME,
+        NotificationManager.IMPORTANCE_DEFAULT
+      )
+      manager.createNotificationChannel(channel)
+    }
+
+    /**
+     * Static helper for price drop notifications (for WorkManager).
+     * Called from PriceRefreshWorker.
+     * 
+     * Note: This doesn't check permissions - ensure caller has permission.
+     */
+    fun showPriceDropNotification(context: Context, productName: String, dropPercentage: Int) {
+      val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        .setSmallIcon(android.R.drawable.ic_dialog_info)
+        .setContentTitle("Baja de Precio Detectada!")
+        .setContentText("El producto $productName ha bajado un $dropPercentage%.")
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        .setAutoCancel(true)
+
+      try {
+        NotificationManagerCompat.from(context).notify(productName.hashCode(), builder.build())
+      } catch (_: SecurityException) {
+        // Permission could be revoked while the app is running.
+      }
+    }
   }
 }
