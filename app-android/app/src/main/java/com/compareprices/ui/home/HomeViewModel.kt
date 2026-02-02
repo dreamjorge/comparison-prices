@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.compareprices.data.local.AppDatabase
 import com.compareprices.data.local.ListItemDao
 import com.compareprices.data.local.ProductDao
+import com.compareprices.data.local.PriceSnapshotDao
 import com.compareprices.data.local.ShoppingListDao
 import com.compareprices.data.local.ShoppingListWithItems
 import com.compareprices.data.local.seedDemoDataIfNeeded
@@ -20,14 +21,16 @@ class HomeViewModel @Inject constructor(
   private val database: AppDatabase,
   private val productDao: ProductDao,
   private val shoppingListDao: ShoppingListDao,
-  private val listItemDao: ListItemDao
+  private val listItemDao: ListItemDao,
+  private val priceSnapshotDao: PriceSnapshotDao,
+  private val userPrefs: com.compareprices.data.local.UserPrefs
 ) : ViewModel() {
-  private val _uiState = MutableStateFlow(HomeUiState())
+  private val _uiState = MutableStateFlow(HomeUiState(isPro = userPrefs.isProUser))
   val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
   init {
     viewModelScope.launch {
-      seedDemoDataIfNeeded(database, shoppingListDao, productDao, listItemDao)
+      seedDemoDataIfNeeded(database, shoppingListDao, productDao, listItemDao, priceSnapshotDao)
     }
     viewModelScope.launch {
       shoppingListDao.observeLatestList().collect { list ->
@@ -36,8 +39,24 @@ class HomeViewModel @Inject constructor(
     }
   }
 
+  fun deleteItem(itemId: Long) {
+    viewModelScope.launch {
+      listItemDao.deleteById(itemId)
+    }
+  }
+
+  fun updateItemQuantity(itemId: Long, quantity: Double) {
+    viewModelScope.launch {
+      if (quantity <= 0) {
+        listItemDao.deleteById(itemId)
+      } else {
+        listItemDao.updateQuantity(itemId, quantity)
+      }
+    }
+  }
 }
 
 data class HomeUiState(
-  val list: ShoppingListWithItems? = null
+  val list: ShoppingListWithItems? = null,
+  val isPro: Boolean = false
 )

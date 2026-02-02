@@ -5,9 +5,17 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 4173,
-    host: true
+    host: true,
+    proxy: {
+      "/api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
   },
   test: {
+    globals: true,
     environment: "jsdom",
     setupFiles: "./src/setupTests.ts"
   }
