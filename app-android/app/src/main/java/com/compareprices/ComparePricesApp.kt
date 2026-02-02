@@ -1,6 +1,7 @@
 package com.compareprices
 
 import android.app.Application
+<<<<<<< HEAD
 import com.compareprices.data.local.AppDatabase
 import com.compareprices.data.local.ListItemDao
 import com.compareprices.data.local.ProductDao
@@ -15,6 +16,24 @@ import kotlinx.coroutines.launch
 
 @HiltAndroidApp
 class ComparePricesApp : Application() {
+=======
+import androidx.work.Configuration
+import androidx.hilt.work.HiltWorkerFactory
+import com.compareprices.ui.notifications.NotificationHelper
+import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
+
+@HiltAndroidApp
+class ComparePricesApp : Application(), Configuration.Provider {
+  
+  @Inject lateinit var workerFactory: HiltWorkerFactory
+
+  override val workManagerConfiguration: Configuration
+    get() = Configuration.Builder()
+      .setWorkerFactory(workerFactory)
+      .build()
+
+>>>>>>> feature/develop-tickets
   override fun onCreate() {
     super.onCreate()
     NotificationHelper.createNotificationChannel(this)

@@ -27,6 +27,11 @@ export function HomePage() {
       badge: stores.length > 0 ? "Catálogo listo" : "Buscando tiendas"
     },
     {
+      title: "Ahorro potencial",
+      body: "Hasta 12% si compras en la tienda recomendada.",
+      badge: "Comparador listo"
+    },
+    {
       title: "Alertas",
       body: "3 productos bajaron de precio esta semana.",
       badge: "Notificaciones on"
@@ -38,13 +43,13 @@ export function HomePage() {
       <header className="card">
         <h2>Panel de Control</h2>
         <p>
-          Bienvenido al comparador web. Aquí puedes ver el estado de tu lista
-          y las tiendas sincronizadas.
+          Bienvenido al comparador web. Este dashboard está conectado al backend
+          y te permite encontrar los mejores precios en tu región.
         </p>
       </header>
 
       {error && (
-        <div className="card" style={{ borderColor: 'red' }}>
+        <div className="card" style={{ border: '1px solid red' }}>
           <p style={{ color: 'red' }}>Error: {error}</p>
         </div>
       )}
@@ -64,7 +69,7 @@ export function HomePage() {
         {loading ? (
           <p>Cargando tiendas...</p>
         ) : (
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
             {stores.map(store => (
               <div key={store.id} style={{
                 padding: '0.5rem 1rem',
