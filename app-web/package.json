@@ -16,6 +16,7 @@
     "react-router-dom": "^6.26.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.9.0",
     "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
@@ -25,8 +26,10 @@
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.11",
+    "globals": "^15.9.0",
     "jsdom": "^24.1.1",
     "typescript": "^5.5.4",
+    "typescript-eslint": "^8.0.1",
     "vite": "^5.4.2",
     "vitest": "^2.0.5"
   }

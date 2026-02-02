@@ -71,6 +71,8 @@ dependencies {
   implementation(libs.androidx.hilt.work)
   ksp(libs.androidx.hilt.compiler)
 
+  implementation(libs.play.services.ads)
+
   testImplementation(libs.junit)
 
   debugImplementation(libs.compose.ui.tooling)

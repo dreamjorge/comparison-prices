@@ -1,11 +1,17 @@
 # 📋 Backlog de Tickets — Android App Comparador de Precios (LATAM)
 
-## Status summary (2026-01-25)
+> **📚 Additional Documentation for Agents:**
+> - **Web App Epics**: See [docs/web-epics-proposal.md](docs/web-epics-proposal.md) for 21 tickets across 6 epics (Epic 9-14)
+> - **Platform Alignment**: See [docs/platform-alignment.md](docs/platform-alignment.md) for Android ↔ Web feature parity analysis and 7 alignment tickets (Epic 15)
+
+## Status summary (2026-02-01)
 - TICKET 0.1: Drafted in `docs/mvp-scope.md`
 - TICKET 0.2: Drafted in `docs/wireframes/ux-flow.md` + `docs/wireframes/notes.md`
 - TICKET 1.1: Scaffold created in `app-android/` (needs build validation)
 - TICKET 1.2, 1.3, 2.2, 2.4, 8.3, 8.6: Implemented en `app-android/` con tests y migración de datos.
 - TICKET 1.2+: Pending
+- **Web App**: Minimal implementation - see platform alignment doc for gaps and roadmap
+
 
 ## Epic 0 — Preparación del proyecto
 ---
@@ -518,3 +524,49 @@ Cuando una migración remapea `productId` y deduplica `list_items`, es posible q
 - Análisis del impacto de la deduplicación actual (por `MIN(id)`).
 - Definición de estrategia para fusionar cantidades o mantener el comportamiento actual.
 - Actualizar migraciones/tests si se decide fusionar.
+
+---
+
+# 🚀 Phase 2: Scalability & Real Utility
+
+## Epic 11 — Real Data Pipeline
+---
+### TICKET 11.1 — Ingestor de Precios Real-time
+**Tipo:** Feature | **Prioridad:** P0
+**Descripción**: Crear un servicio de scraping/ingesta que alimente el backend con precios reales.
+**Tareas**:
+- [ ] Implementar scaffold con Playwright/Python.
+- [ ] Mapear selectores para 2 supermercados principales.
+- [ ] Guardar resultados en JSON/DB.
+
+### TICKET 11.2 — Migración a Base de Datos de Producción
+**Tipo:** Task | **Prioridad:** P0
+**Descripción**: Reemplazar `MOCK_PRODUCTS` en `main.py` por una conexión a PostgreSQL.
+**Criterios de Aceptación**:
+- [ ] Docker Compose con PostgreSQL + FastAPI.
+- [ ] Scripts de migración inicial.
+
+## Epic 12 — Cloud Sync & Auth
+---
+### TICKET 12.1 — Implementación de Firebase Auth
+**Tipo:** Task | **Prioridad:** P1
+**Descripción**: Permitir que los usuarios inicien sesión en Android y Web.
+**Criterios de Aceptación**:
+- [ ] Login con Google habilitado en Android.
+- [ ] Token de auth validado en el backend.
+
+### TICKET 12.2 — Sincronización de Listas
+**Tipo:** Feature | **Prioridad:** P1
+**Descripción**: Sincronizar `ShoppingList` local (Room) con la nube.
+**Tareas**:
+- [ ] Worker de sincronización periódica.
+- [ ] Manejo de conflictos básico (LWW - Last Writer Wins).
+
+## Epic 13 — Inteligencia de Precios
+---
+### TICKET 13.1 — Algoritmo "Mejor Día para Comprar"
+**Tipo:** Feature | **Prioridad:** P2
+**Descripción**: Analizar el historial de precios para predecir fluctuaciones.
+**Criterios de Aceptación**:
+- [ ] Gráfica de tendencia en Android.
+- [ ] Recomendación textual (ej: "Suele bajar los martes").
