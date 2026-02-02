@@ -7,7 +7,6 @@ import com.compareprices.data.local.ListItemDao
 import com.compareprices.data.local.ProductDao
 import com.compareprices.data.local.ShoppingListDao
 import com.compareprices.data.local.ShoppingListWithItems
-import com.compareprices.data.local.seedDemoDataIfNeeded
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,9 +25,6 @@ class CompareViewModel @Inject constructor(
   val uiState: StateFlow<CompareUiState> = _uiState.asStateFlow()
 
   init {
-    viewModelScope.launch {
-      seedDemoDataIfNeeded(database, shoppingListDao, productDao, listItemDao)
-    }
     viewModelScope.launch {
       shoppingListDao.observeLatestList().collect { list ->
         _uiState.value = CompareUiState(list)

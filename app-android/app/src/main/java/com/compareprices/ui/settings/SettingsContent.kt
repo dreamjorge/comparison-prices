@@ -19,8 +19,9 @@ enum class SettingsIcon {
   Info
 }
 
-fun defaultSettingsSections(): List<SettingsSection> =
+fun defaultSettingsSections(isPremium: Boolean = false): List<SettingsSection> =
   listOf(
+    // ... existing sections ...
     SettingsSection(
       title = "Preferencias de compra",
       items = listOf(
@@ -53,18 +54,28 @@ fun defaultSettingsSections(): List<SettingsSection> =
     ),
     SettingsSection(
       title = "Plan",
-      items = listOf(
-        SettingsItem(
-          title = "Plan actual",
-          value = "Free con anuncios",
-          icon = SettingsIcon.Payments
-        ),
-        SettingsItem(
-          title = "Upgrade",
-          value = "Pro: sin anuncios + historial extendido",
-          icon = SettingsIcon.Payments
+      items = if (isPremium) {
+        listOf(
+          SettingsItem(
+            title = "Plan actual",
+            value = "Pro (Sin anuncios)",
+            icon = SettingsIcon.Payments
+          )
         )
-      )
+      } else {
+        listOf(
+          SettingsItem(
+            title = "Plan actual",
+            value = "Free con anuncios",
+            icon = SettingsIcon.Payments
+          ),
+          SettingsItem(
+            title = "Upgrade",
+            value = "Quitar anuncios",
+            icon = SettingsIcon.Payments
+          )
+        )
+      }
     ),
     SettingsSection(
       title = "Acerca de",

@@ -12,6 +12,9 @@ interface ProductDao {
   @Query("SELECT * FROM products ORDER BY name ASC")
   suspend fun getAll(): List<ProductEntity>
 
+  @Query("SELECT * FROM products WHERE id = :id LIMIT 1")
+  suspend fun getById(id: Long): ProductEntity?
+
   @Query(
     """
     SELECT * FROM products
@@ -52,6 +55,9 @@ interface StoreDao {
 interface PriceSnapshotDao {
   @Query("SELECT * FROM price_snapshots WHERE productId = :productId ORDER BY capturedAt DESC")
   suspend fun historyForProduct(productId: Long): List<PriceSnapshotEntity>
+
+  @Query("SELECT * FROM price_snapshots WHERE productId = :productId ORDER BY capturedAt DESC LIMIT :limit")
+  suspend fun getHistoryForProduct(productId: Long, limit: Int = 30): List<PriceSnapshotEntity>
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun insertAll(items: List<PriceSnapshotEntity>)

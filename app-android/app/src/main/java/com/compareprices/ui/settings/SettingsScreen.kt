@@ -23,14 +23,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SettingsScreen() {
-  val sections = defaultSettingsSections()
+fun SettingsScreen(
+  onNavigateToPaywall: () -> Unit = {},
+  viewModel: com.compareprices.ui.premium.PremiumViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+) {
+  val isPremium by viewModel.isPremium.collectAsState()
+  val sections = defaultSettingsSections(isPremium)
+
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
     contentPadding = PaddingValues(16.dp),
@@ -42,7 +49,7 @@ fun SettingsScreen() {
 
     sections.forEach { section ->
       item {
-        SettingsSectionCard(section)
+        SettingsSectionCard(section, onNavigateToPaywall)
       }
     }
   }
@@ -65,13 +72,21 @@ private fun SettingsHeader() {
 }
 
 @Composable
-private fun SettingsSectionCard(section: SettingsSection) {
+private fun SettingsSectionCard(
+  section: SettingsSection,
+  onNavigateToPaywall: () -> Unit
+) {
   SettingsCard(title = section.title) {
     section.items.forEach { item ->
       SettingsRow(
         icon = { SettingsIconBadge(item.icon) },
         title = item.title,
-        value = item.value
+        value = item.value,
+        onClick = {
+          if (item.title == "Plan actual" || item.title == "Upgrade") {
+            onNavigateToPaywall()
+          }
+        }
       )
     }
   }
@@ -104,10 +119,13 @@ private fun SettingsCard(
 private fun SettingsRow(
   icon: @Composable () -> Unit,
   title: String,
-  value: String
+  value: String,
+  onClick: () -> Unit = {}
 ) {
   Row(
-    modifier = Modifier.fillMaxWidth(),
+    modifier = Modifier
+      .fillMaxWidth()
+      .clickable { onClick() },
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(12.dp)
   ) {

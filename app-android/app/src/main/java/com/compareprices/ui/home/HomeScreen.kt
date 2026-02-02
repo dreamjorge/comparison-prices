@@ -1,5 +1,6 @@
 package com.compareprices.ui.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -36,10 +37,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.compareprices.ui.components.AdBanner
 import com.compareprices.data.local.ListItemWithProduct
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(
+  onNavigateToHistory: (Long) -> Unit = {},
+  viewModel: HomeViewModel = hiltViewModel()
+) {
   val uiState by viewModel.uiState.collectAsState()
   val list = uiState.list
   var showAddDialog by remember { mutableStateOf(false) }
@@ -57,10 +62,34 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
       return@Scaffold
     }
 
+    HomeWithAds(
+      padding = padding,
+      list = list,
+      onDelete = { showDeleteConfirm = it },
+      onQuantityChange = { id, delta -> viewModel.updateItemQuantity(id, delta) },
+      onNavigateToHistory = onNavigateToHistory
+    )
+  }
+}
+
+@Composable
+fun HomeWithAds(
+  padding: PaddingValues,
+  list: com.compareprices.data.local.ShoppingListWithItems,
+  onDelete: (Long) -> Unit,
+  onQuantityChange: (Long, Double) -> Unit,
+  onNavigateToHistory: (Long) -> Unit,
+  premiumViewModel: com.compareprices.ui.premium.PremiumViewModel = hiltViewModel()
+) {
+  val isPremium by premiumViewModel.isPremium.collectAsState()
+
+  Column(
+    modifier = Modifier
+      .fillMaxSize()
+      .padding(padding)
+  ) {
     LazyColumn(
-      modifier = Modifier
-        .fillMaxSize()
-        .padding(padding),
+      modifier = Modifier.weight(1f),
       contentPadding = PaddingValues(16.dp),
       verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -85,14 +114,20 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
       items(list.items) { listItem ->
         ListItemCard(
           listItem = listItem,
-          onDelete = { showDeleteConfirm = listItem.item.id },
+          onDelete = { onDelete(listItem.item.id) },
           onQuantityChange = { delta ->
-            viewModel.updateItemQuantity(listItem.item.id, delta)
-          }
+            onQuantityChange(listItem.item.id, delta)
+          },
+          onClickProduct = { onNavigateToHistory(listItem.product.id) }
         )
       }
     }
+
+    if (!isPremium) {
+      AdBanner()
+    }
   }
+}
 
   if (showAddDialog) {
     AddItemDialog(
@@ -152,7 +187,8 @@ private fun EmptyHomeState(modifier: Modifier = Modifier) {
 private fun ListItemCard(
   listItem: ListItemWithProduct,
   onDelete: () -> Unit,
-  onQuantityChange: (Double) -> Unit
+  onQuantityChange: (Double) -> Unit,
+  onClickProduct: () -> Unit = {}
 ) {
   Card(modifier = Modifier.fillMaxWidth()) {
     Column(modifier = Modifier.padding(16.dp)) {
@@ -161,11 +197,16 @@ private fun ListItemCard(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
-        Column(modifier = Modifier.weight(1f)) {
+        Column(
+          modifier = Modifier
+            .weight(1f)
+            .clickable { onClickProduct() }
+        ) {
           Text(
             text = listItem.product.name,
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary
           )
           Spacer(modifier = Modifier.height(4.dp))
           val brand = listItem.product.brand

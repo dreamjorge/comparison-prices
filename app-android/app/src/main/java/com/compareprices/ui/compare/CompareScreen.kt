@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.compareprices.data.local.ListItemWithProduct
+import com.compareprices.ui.components.AdBanner
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -39,8 +40,13 @@ import java.util.TimeZone
 import kotlin.math.roundToInt
 
 @Composable
-fun CompareScreen(viewModel: CompareViewModel = hiltViewModel()) {
+fun CompareScreen(
+  viewModel: CompareViewModel = hiltViewModel(),
+  premiumViewModel: com.compareprices.ui.premium.PremiumViewModel = hiltViewModel()
+) {
+  val isPremium by premiumViewModel.isPremium.collectAsState()
   val uiState by viewModel.uiState.collectAsState()
+  // ... rest of setup ...
   val storePrices = remember { demoStorePrices() }
   val listItems = uiState.list?.items.orEmpty()
   val listStorePrices = filterStorePricesByList(storePrices, listItems)
@@ -62,73 +68,79 @@ fun CompareScreen(viewModel: CompareViewModel = hiltViewModel()) {
   val listName = uiState.list?.list?.name ?: "Lista actual"
   val dateLabel = remember { formatTodayLabel() }
 
-  LazyColumn(
-    modifier = Modifier.fillMaxSize(),
-    contentPadding = PaddingValues(16.dp),
-    verticalArrangement = Arrangement.spacedBy(12.dp)
-  ) {
-    item {
-      Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-          text = listName,
-          style = MaterialTheme.typography.titleLarge,
-          fontWeight = FontWeight.SemiBold
-        )
-        Text(
-          text = dateLabel,
-          style = MaterialTheme.typography.bodySmall,
-          color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-          text = "Buscar precios por supermercado",
-          style = MaterialTheme.typography.titleLarge,
-          fontWeight = FontWeight.SemiBold
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        OutlinedTextField(
-          value = query,
-          onValueChange = { query = it },
-          modifier = Modifier.fillMaxWidth(),
-          label = { Text("Buscar tienda o producto") },
-          singleLine = true
-        )
-      }
-    }
-
-    if (filteredStores.isEmpty()) {
+  Column(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(
+      modifier = Modifier.weight(1f),
+      contentPadding = PaddingValues(16.dp),
+      verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
       item {
-        Card(
-          colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-          ),
-          modifier = Modifier.fillMaxWidth()
-        ) {
-          Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-              text = "No hay resultados",
-              style = MaterialTheme.typography.titleMedium,
-              fontWeight = FontWeight.SemiBold
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-              text = "Prueba con otra tienda o producto.",
-              style = MaterialTheme.typography.bodyMedium
-            )
+        Column(modifier = Modifier.fillMaxWidth()) {
+          Text(
+            text = listName,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold
+          )
+          Text(
+            text = dateLabel,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
+          Spacer(modifier = Modifier.height(12.dp))
+          Text(
+            text = "Buscar precios por supermercado",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold
+          )
+          Spacer(modifier = Modifier.height(12.dp))
+          OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Buscar tienda o producto") },
+            singleLine = true
+          )
+        }
+      }
+
+      if (filteredStores.isEmpty()) {
+        item {
+          Card(
+            colors = CardDefaults.cardColors(
+              containerColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            modifier = Modifier.fillMaxWidth()
+          ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+              Text(
+                text = "No hay resultados",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+              )
+              Spacer(modifier = Modifier.height(4.dp))
+              Text(
+                text = "Prueba con otra tienda o producto.",
+                style = MaterialTheme.typography.bodyMedium
+              )
+            }
           }
         }
       }
+
+      items(comparisons) { comparison ->
+        val store = comparison.store
+        val isCheapest = cheapestTotal != null && comparison.total == cheapestTotal
+        StorePriceCard(
+          store = store,
+          isCheapest = isCheapest,
+          savingsVsNext = comparison.savingsVsNext,
+          total = comparison.total
+        )
+      }
     }
 
-    items(comparisons) { comparison ->
-      val store = comparison.store
-      val isCheapest = cheapestTotal != null && comparison.total == cheapestTotal
-      StorePriceCard(
-        store = store,
-        isCheapest = isCheapest,
-        savingsVsNext = comparison.savingsVsNext,
-        total = comparison.total
-      )
+    if (!isPremium) {
+      AdBanner()
     }
   }
 }
