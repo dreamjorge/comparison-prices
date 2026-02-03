@@ -81,6 +81,8 @@
   **Mitigación:** mantener un test que valide que `src/generated.ts` coincide con la salida del generador.
 - **⚠️ NUEVO RIESGO:** App no es usable sin TICKET 2.1 - usuarios no pueden crear listas.
   **Mitigación:** Priorizar TICKET 2.1 antes que features avanzadas.
+- **⚠️ NUEVO RIESGO:** El desbloqueo temporal por rewarded depende del reloj local del dispositivo.
+  **Mitigación:** limpiar expiraciones al iniciar la app y planear un refresh periódico/validación de tiempo en una tarea futura.
 
 ## Backlog (seguimiento)
 - [x] TICKET 9.6 — Definir checklist CI para verificar generación de contratos desde `packages/contracts` y detectar divergencias. ✅ **Done: scripts/verify.sh + CI Job**
@@ -89,3 +91,4 @@
 - [ ] TICKET 7.1 — Aumentar cobertura de tests a 80%+.
 - [ ] TICKET 7.2 — CI/CD para Play Store (AAB build + lint + tests).
 - [ ] TICKET 7.3 — Documentar Data Safety para Play Store listing.
+- [ ] TICKET 7.4 — Refrescar expiración de Pro temporal por rewarded (ticker en background + analítica de uso).
