@@ -5,7 +5,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -16,6 +23,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.compareprices.ui.components.RewardedAdButton
+import java.text.DateFormat
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,7 +33,7 @@ fun PaywallScreen(
   onDismiss: () -> Unit,
   viewModel: PremiumViewModel = hiltViewModel()
 ) {
-  val isPremium by viewModel.isPremium.collectAsState()
+  val uiState by viewModel.premiumUiState.collectAsState()
 
   Scaffold(
     topBar = {
@@ -69,13 +79,21 @@ fun PaywallScreen(
       
       Spacer(modifier = Modifier.weight(1f))
       
-      if (isPremium) {
+      if (uiState.hasAccess) {
         Text(
-          text = "¡Ya eres un usuario PRO!",
+          text = if (uiState.isPaid) "¡Ya eres un usuario PRO!" else "Pro temporal activo",
           style = MaterialTheme.typography.titleLarge,
           color = MaterialTheme.colorScheme.primary,
           fontWeight = FontWeight.Bold
         )
+        if (!uiState.isPaid && uiState.rewardedUntilMillis > 0L) {
+          Spacer(modifier = Modifier.height(8.dp))
+          Text(
+            text = "Disponible hasta ${formatRewardedUntil(uiState.rewardedUntilMillis)}",
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center
+          )
+        }
         Spacer(modifier = Modifier.height(16.dp))
         Button(
           onClick = onDismiss,
@@ -92,6 +110,14 @@ fun PaywallScreen(
           Text("Obtener Pro por $2.99 USD", fontSize = 18.sp)
         }
         
+        Spacer(modifier = Modifier.height(16.dp))
+
+        RewardedAdButton(
+          buttonText = "Ver anuncio para 24h de Pro",
+          onRewardEarned = { viewModel.unlockRewardedAccess() },
+          modifier = Modifier.fillMaxWidth()
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
         
         TextButton(onClick = onDismiss) {
@@ -121,4 +147,9 @@ private fun BenefitItem(title: String, description: String) {
       Text(text = description, style = MaterialTheme.typography.bodyMedium)
     }
   }
+}
+
+private fun formatRewardedUntil(timestampMillis: Long): String {
+  val formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+  return formatter.format(Date(timestampMillis))
 }
