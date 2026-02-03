@@ -1,6 +1,7 @@
 package com.compareprices.ui.notifications
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -42,6 +43,7 @@ class NotificationHelper @Inject constructor(
     }
   }
 
+  @SuppressLint("MissingPermission")
   fun showPriceDropNotification(
     productName: String,
     storeName: String,
@@ -62,7 +64,7 @@ class NotificationHelper @Inject constructor(
 
     val savings = oldPrice - newPrice
     val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-      .setSmallIcon(R.drawable.ic_launcher_foreground)
+      .setSmallIcon(R.drawable.ic_notification)
       .setContentTitle("¡Precio más bajo!")
       .setContentText("$productName en $storeName: ahorra $${String.format("%.2f", savings)}")
       .setStyle(

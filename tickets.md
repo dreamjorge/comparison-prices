@@ -564,3 +564,10 @@ Cuando una migración remapea `productId` y deduplica `list_items`, es posible q
 **Criterios de Aceptación**:
 - [ ] Gráfica de tendencia en Android.
 - [ ] Recomendación textual (ej: "Suele bajar los martes").
+
+### TICKET 13.2 — Evaluar librería de gráficos para historial de precios
+**Tipo:** Task | **Prioridad:** P2
+**Descripción**: Definir si se mantiene un gráfico nativo simple o se integra una librería externa con soporte de ejes y tooltips.
+**Criterios de Aceptación**:
+- [ ] Documentar pros/contras y tamaño de APK.
+- [ ] Probar al menos una librería con el historial de precios real.
