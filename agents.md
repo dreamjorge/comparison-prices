@@ -172,6 +172,7 @@
 - Colaboración familiar
 - “Ruta de compra” (dividir lista entre 2 tiendas)
 - Afiliados / cashback
+- Mantener fakes de DAOs de tests alineados con cambios en interfaces de Room.
 
 ---
 

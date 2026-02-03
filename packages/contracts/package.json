@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "generate": "node scripts/generate.mjs",
+    "verify": "bash scripts/verify.sh",
     "test": "node --test"
   }
 }

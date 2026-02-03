@@ -12,6 +12,9 @@ interface ProductDao {
   @Query("SELECT * FROM products ORDER BY name ASC")
   suspend fun getAll(): List<ProductEntity>
 
+  @Query("SELECT * FROM products WHERE id = :id LIMIT 1")
+  suspend fun getById(id: Long): ProductEntity?
+
   @Query(
     """
     SELECT * FROM products
@@ -31,6 +34,12 @@ interface ProductDao {
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun insertAll(items: List<ProductEntity>): List<Long>
+
+  @Query("SELECT * FROM products WHERE name LIKE :query OR brand LIKE :query ORDER BY name ASC LIMIT 20")
+  fun searchByName(query: String): Flow<List<ProductEntity>>
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insert(item: ProductEntity): Long
 }
 
 @Dao
@@ -46,6 +55,9 @@ interface StoreDao {
 interface PriceSnapshotDao {
   @Query("SELECT * FROM price_snapshots WHERE productId = :productId ORDER BY capturedAt DESC")
   suspend fun historyForProduct(productId: Long): List<PriceSnapshotEntity>
+
+  @Query("SELECT * FROM price_snapshots WHERE productId = :productId ORDER BY capturedAt DESC LIMIT :limit")
+  suspend fun getHistoryForProduct(productId: Long, limit: Int = 30): List<PriceSnapshotEntity>
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun insertAll(items: List<PriceSnapshotEntity>)
@@ -78,6 +90,31 @@ interface ListItemDao {
   @Query("SELECT * FROM list_items WHERE listId = :listId")
   suspend fun itemsForList(listId: Long): List<ListItemEntity>
 
+  @Query("SELECT * FROM list_items WHERE listId = :listId AND productId = :productId LIMIT 1")
+  suspend fun findItem(listId: Long, productId: Long): ListItemEntity?
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun upsert(item: ListItemEntity)
+
   @Insert(onConflict = OnConflictStrategy.REPLACE)
   suspend fun upsertAll(items: List<ListItemEntity>)
+
+  @Insert(onConflict = OnConflictStrategy.REPLACE)
+  suspend fun insert(item: ListItemEntity): Long
+
+  @Transaction
+  suspend fun insertOrUpdateQuantity(item: ListItemEntity) {
+    val existing = findItem(item.listId, item.productId)
+    if (existing != null) {
+      upsert(existing.copy(quantity = existing.quantity + item.quantity))
+    } else {
+      upsert(item)
+    }
+  }
+
+  @Query("DELETE FROM list_items WHERE id = :itemId")
+  suspend fun deleteById(itemId: Long)
+
+  @Query("UPDATE list_items SET quantity = :quantity WHERE id = :itemId")
+  suspend fun updateQuantity(itemId: Long, quantity: Double)
 }

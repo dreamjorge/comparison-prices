@@ -71,6 +71,15 @@ dependencies {
   implementation(libs.androidx.hilt.work)
   ksp(libs.androidx.hilt.compiler)
 
+  implementation(libs.androidx.datastore.preferences)
+
+  // Vico Charts for price history
+  implementation(libs.vico.compose)
+  implementation(libs.vico.compose.m3)
+  implementation(libs.vico.core)
+
+  implementation(libs.play.services.ads)
+
   testImplementation(libs.junit)
 
   debugImplementation(libs.compose.ui.tooling)
