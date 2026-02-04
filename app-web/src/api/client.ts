@@ -2,35 +2,46 @@ import { Store, Product, StoreTotal, ListItem, PriceSnapshot } from "../../../pa
 
 export type { Store, Product, StoreTotal, ListItem, PriceSnapshot };
 
-const API_BASE_URL = "http://localhost:4000/v1";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_KEY = import.meta.env.VITE_API_KEY || "dummy-dev-key";
+
+async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+        ...init,
+        headers: {
+            "Content-Type": "application/json",
+            "X-API-Key": API_KEY,
+            ...(init?.headers || {}),
+        },
+    });
+    if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+    }
+    return response.json() as Promise<T>;
+}
 
 export async function fetchStores(): Promise<Store[]> {
-    const response = await fetch(`${API_BASE_URL}/stores`);
-    if (!response.ok) throw new Error("Failed to fetch stores");
-    const data = await response.json();
+    const data = await fetchJson<{ stores: Store[] }>("/v1/stores");
     return data.stores;
 }
 
 export async function searchProducts(q: string): Promise<Product[]> {
-    const response = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(q)}`);
-    if (!response.ok) throw new Error("Failed to search products");
-    const data = await response.json();
+    const data = await fetchJson<{ products: Product[] }>(
+        `/v1/search?q=${encodeURIComponent(q)}`
+    );
     return data.products;
 }
 
 export async function calculateListTotals(items: ListItem[]): Promise<StoreTotal[]> {
-    const response = await fetch(`${API_BASE_URL}/list-totals`, {
+    const data = await fetchJson<{ totals: StoreTotal[] }>("/v1/list-totals", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items })
     });
-    if (!response.ok) throw new Error("Failed to calculate totals");
-    const data = await response.json();
     return data.totals;
 }
 
 export async function fetchPriceHistory(productId: string): Promise<{ product: Product; history: PriceSnapshot[] }> {
-    const response = await fetch(`${API_BASE_URL}/price-history?productId=${productId}`);
-    if (!response.ok) throw new Error("Failed to fetch price history");
-    return response.json();
+    return fetchJson<{ product: Product; history: PriceSnapshot[] }>(
+        `/v1/price-history?productId=${encodeURIComponent(productId)}`
+    );
 }

@@ -2,106 +2,173 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { PRODUCTS, STORES, PRICE_SNAPSHOTS } from "./mockData.js";
+import { fileURLToPath } from "node:url";
 
 dotenv.config();
 
-const app = express();
 const port = process.env.PORT || 4000;
+const apiKey = process.env.API_KEY || "dummy-dev-key";
+const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:4173,http://127.0.0.1:4173")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
 import { ListItem } from "../../packages/contracts/src/types";
 
-app.use(cors({
-    origin: ["http://localhost:4173", "http://127.0.0.1:4173"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-}));
-app.use(express.json());
+function requireApiKey(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const requestApiKey = req.header("X-API-Key");
+    if (!requestApiKey || requestApiKey !== apiKey) {
+        return res.status(403).json({ error: "Invalid API key" });
+    }
+    next();
+}
 
-// GET /v1/stores
-app.get("/v1/stores", (req, res) => {
-    res.json({ stores: STORES });
-});
+function decodeCursor(cursor: string | undefined): number | null {
+    if (!cursor) {
+        return 0;
+    }
 
-// GET /v1/search
-app.get("/v1/search", (req, res) => {
-    const q = (req.query.q as string || "").toLowerCase();
-    const limit = parseInt(req.query.limit as string) || 20;
-    const cursor = parseInt(req.query.cursor as string) || 0;
+    try {
+        const decoded = Buffer.from(cursor, "base64").toString("utf8");
+        const offset = Number.parseInt(decoded, 10);
+        if (Number.isNaN(offset) || offset < 0) {
+            return null;
+        }
+        return offset;
+    } catch {
+        return null;
+    }
+}
 
-    const filtered = PRODUCTS.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.brand?.toLowerCase().includes(q)
-    );
+function encodeCursor(offset: number): string {
+    return Buffer.from(String(offset), "utf8").toString("base64");
+}
 
-    const paginated = filtered.slice(cursor, cursor + limit);
-    const nextCursor = (cursor + limit < filtered.length) ? (cursor + limit).toString() : null;
+export function createApp() {
+    const app = express();
 
-    res.json({
-        products: paginated,
-        nextCursor
+    app.use(cors({
+        origin: allowedOrigins,
+        methods: ["GET", "POST"],
+        allowedHeaders: ["Content-Type", "Authorization", "X-API-Key"]
+    }));
+    app.use(express.json());
+    app.use("/v1", requireApiKey);
+
+    // GET /v1/stores
+    app.get("/v1/stores", (req, res) => {
+        const limit = Math.min(Math.max(Number.parseInt(req.query.limit as string, 10) || 20, 1), 100);
+        const offset = decodeCursor(req.query.cursor as string | undefined);
+        if (offset === null) {
+            return res.status(400).json({ error: "Invalid cursor" });
+        }
+
+        const stores = STORES.slice(offset, offset + limit);
+        const nextCursor = offset + limit < STORES.length ? encodeCursor(offset + limit) : null;
+        res.json({ stores, nextCursor });
     });
-});
 
-// GET /v1/price-history
-app.get("/v1/price-history", (req, res) => {
-    const productId = req.query.productId as string;
-    const product = PRODUCTS.find(p => p.id === productId);
+    // GET /v1/search
+    app.get("/v1/search", (req, res) => {
+        const q = (req.query.q as string || "").toLowerCase();
+        const limit = Math.min(Math.max(Number.parseInt(req.query.limit as string, 10) || 20, 1), 100);
+        const offset = decodeCursor(req.query.cursor as string | undefined);
+        if (offset === null) {
+            return res.status(400).json({ error: "Invalid cursor" });
+        }
 
-    if (!product) {
-        return res.status(404).json({ error: "Product not found" });
-    }
+        const filtered = PRODUCTS.filter(p =>
+            p.name.toLowerCase().includes(q) ||
+            p.brand?.toLowerCase().includes(q)
+        );
 
-    const history = PRICE_SNAPSHOTS
-        .filter(s => s.productId === productId)
-        .map(s => ({
-            capturedAt: s.capturedAt,
-            price: s.price,
-            isPromo: s.isPromo
-        }));
+        const paginated = filtered.slice(offset, offset + limit);
+        const nextCursor = (offset + limit < filtered.length) ? encodeCursor(offset + limit) : null;
 
-    res.json({ product, history });
-});
+        res.json({
+            products: paginated,
+            nextCursor
+        });
+    });
 
-// POST /v1/list-totals
-app.post("/v1/list-totals", (req, res) => {
-    const { items } = req.body;
+    // GET /v1/price-history
+    app.get("/v1/price-history", (req, res) => {
+        const productId = req.query.productId as string;
+        const product = PRODUCTS.find(p => p.id === productId);
 
-    if (!items || !Array.isArray(items)) {
-        return res.status(400).json({ error: "Invalid items" });
-    }
+        if (!product) {
+            return res.status(404).json({ error: "Product not found" });
+        }
 
-    const totals = STORES.map(store => {
-        let total = 0;
-        items.forEach((item: ListItem) => {
-            const snapshot = PRICE_SNAPSHOTS.find(
-                s => s.productId === item.productId && s.storeId === store.id
-            );
-            if (snapshot) {
-                total += snapshot.price * item.quantity;
-            }
+        const history = PRICE_SNAPSHOTS
+            .filter(s => s.productId === productId)
+            .map(s => ({
+                capturedAt: s.capturedAt,
+                price: s.price,
+                isPromo: s.isPromo
+            }));
+
+        res.json({ product, history });
+    });
+
+    // POST /v1/list-totals
+    app.post("/v1/list-totals", (req, res) => {
+        const { items } = req.body;
+
+        if (!items || !Array.isArray(items)) {
+            return res.status(400).json({ error: "Invalid items" });
+        }
+
+        const hasInvalidItems = items.some(
+            (item: ListItem) =>
+                !item.productId ||
+                typeof item.quantity !== "number" ||
+                Number.isNaN(item.quantity) ||
+                item.quantity <= 0
+        );
+        if (hasInvalidItems) {
+            return res.status(400).json({ error: "Each item requires a productId and quantity > 0" });
+        }
+
+        const totals = STORES.map(store => {
+            let total = 0;
+            items.forEach((item: ListItem) => {
+                const snapshot = PRICE_SNAPSHOTS.find(
+                    s => s.productId === item.productId && s.storeId === store.id
+                );
+                if (snapshot) {
+                    total += snapshot.price * item.quantity;
+                }
+            });
+
+            return {
+                storeId: store.id,
+                total: parseFloat(total.toFixed(2)),
+                updatedAt: new Date().toISOString()
+            };
         });
 
-        return {
-            storeId: store.id,
-            total: parseFloat(total.toFixed(2)),
-            updatedAt: new Date().toISOString()
-        };
+        const sortedTotals = [...totals].sort((a, b) => a.total - b.total);
+        const resultWithSavings = totals.map(t => {
+            const isCheapest = t.total === sortedTotals[0].total;
+            let savings = null;
+            if (isCheapest && sortedTotals.length > 1) {
+                savings = parseFloat((sortedTotals[1].total - t.total).toFixed(2));
+            }
+            return { ...t, savings };
+        });
+
+        res.json({ totals: resultWithSavings });
     });
 
-    // Calculate savings vs next cheapest (optional for now, but good to have)
-    const sortedTotals = [...totals].sort((a, b) => a.total - b.total);
-    const resultWithSavings = totals.map(t => {
-        const isCheapest = t.total === sortedTotals[0].total;
-        let savings = null;
-        if (isCheapest && sortedTotals.length > 1) {
-            savings = parseFloat((sortedTotals[1].total - t.total).toFixed(2));
-        }
-        return { ...t, savings };
+    return app;
+}
+
+const app = createApp();
+
+const entrypoint = process.argv[1] ? fileURLToPath(import.meta.url) === process.argv[1] : false;
+if (entrypoint) {
+    app.listen(port, () => {
+        console.log(`🚀 API ready at http://localhost:${port}/v1`);
     });
-
-    res.json({ totals: resultWithSavings });
-});
-
-app.listen(port, () => {
-    console.log(`🚀 API ready at http://localhost:${port}/v1`);
-});
+}
