@@ -36,6 +36,7 @@ fun CompareScreen() {
 
   val filteredStores = sortStorePricesByTotal(filterStorePrices(query, storePrices))
   val cheapestTotal = cheapestTotalValue(filteredStores)
+  val savingsSummary = buildSavingsSummary(filteredStores)
 
   LazyColumn(
     modifier = Modifier.fillMaxSize(),
@@ -57,6 +58,12 @@ fun CompareScreen() {
           label = { Text("Buscar tienda o producto") },
           singleLine = true
         )
+      }
+    }
+
+    if (savingsSummary != null) {
+      item {
+        SavingsSummaryCard(summary = savingsSummary)
       }
     }
 
@@ -87,6 +94,49 @@ fun CompareScreen() {
     items(filteredStores) { store ->
       val isCheapest = cheapestTotal != null && parseTotalPrice(store.totalLabel) == cheapestTotal
       StorePriceCard(store = store, isCheapest = isCheapest)
+    }
+  }
+}
+
+@Composable
+private fun SavingsSummaryCard(summary: SavingsSummary) {
+  Card(
+    colors = CardDefaults.cardColors(
+      containerColor = MaterialTheme.colorScheme.secondaryContainer
+    ),
+    modifier = Modifier.fillMaxWidth()
+  ) {
+    Column(modifier = Modifier.padding(16.dp)) {
+      Text(
+        text = "Mejor opción hoy",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.onSecondaryContainer
+      )
+      Spacer(modifier = Modifier.height(8.dp))
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+      ) {
+        Text(
+          text = summary.storeName,
+          style = MaterialTheme.typography.bodyLarge,
+          fontWeight = FontWeight.Medium,
+          color = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+        Text(
+          text = summary.totalLabel,
+          style = MaterialTheme.typography.bodyLarge,
+          fontWeight = FontWeight.SemiBold,
+          color = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+      }
+      Spacer(modifier = Modifier.height(6.dp))
+      Text(
+        text = summary.savingsLabel,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSecondaryContainer
+      )
     }
   }
 }
@@ -157,6 +207,12 @@ internal data class StoreItemPrice(
   val price: String
 )
 
+internal data class SavingsSummary(
+  val storeName: String,
+  val totalLabel: String,
+  val savingsLabel: String
+)
+
 internal fun demoStorePrices(): List<StorePrice> {
   return listOf(
     StorePrice(
@@ -223,7 +279,37 @@ internal fun cheapestTotalValue(storePrices: List<StorePrice>): Int? {
   return storePrices.minOfOrNull { parseTotalPrice(it.totalLabel) }
 }
 
+internal fun buildSavingsSummary(storePrices: List<StorePrice>): SavingsSummary? {
+  if (storePrices.size < 2) {
+    return null
+  }
+
+  val sortedStores = storePrices.sortedBy { parseTotalPrice(it.totalLabel) }
+  val cheapest = sortedStores[0]
+  val runnerUp = sortedStores[1]
+  val cheapestTotal = parseTotalPrice(cheapest.totalLabel)
+  val runnerUpTotal = parseTotalPrice(runnerUp.totalLabel)
+  val savings = (runnerUpTotal - cheapestTotal).coerceAtLeast(0)
+  val savingsLabel = if (savings > 0) {
+    "Ahorra ${formatCurrency(savings)} vs ${runnerUp.storeName}"
+  } else {
+    "Empate con ${runnerUp.storeName}"
+  }
+
+  return SavingsSummary(
+    storeName = cheapest.storeName,
+    totalLabel = cheapest.totalLabel,
+    savingsLabel = savingsLabel
+  )
+}
+
 internal fun parseTotalPrice(totalLabel: String): Int {
   val digits = totalLabel.filter { it.isDigit() }
   return digits.toIntOrNull() ?: 0
+}
+
+internal fun formatCurrency(value: Int): String {
+  val raw = value.coerceAtLeast(0).toString()
+  val grouped = raw.reversed().chunked(3).joinToString(".").reversed()
+  return "$ $grouped"
 }
