@@ -1,5 +1,13 @@
 # Plan de desarrollo (multi-agent) — Android App: Comparador de precios por lista de súper (LATAM)
 
+## Status update (2026-02-03)
+- Skills & plugins updated: `skills.md` rewritten to cover all 5 platforms (Android, Web, Python API, Rust, Contracts) with commands, key files, and Phase 2 plugins.
+- CI expanded: `.github/workflows/ci.yml` now includes Python API (ruff + pytest), Rust matching (cargo test), and contracts drift check alongside existing Android and Web jobs.
+- Python API: Added pytest test suite (`api-python/tests/`), ruff linter config (`pyproject.toml`), and Dockerfile.
+- Rust Matching: Added 2 additional tests (ranking, threshold filtering).
+- Docker: Added `docker-compose.yml` at repo root for local multi-service development.
+- Phase 2 plugins documented in `skills.md`: Authentication (Firebase Auth), Data Pipeline (real price ingestion), Price Intelligence (trend analysis).
+
 ## Status update (2026-02-01)
 - Agent 2 added: Compare screen sorts stores by total price, highlights the cheapest option, includes unit tests for price parsing/sorting, and now includes Walmart demo pricing data for real-supermarket search context.
 - Agent 2 added: Settings screen now uses structured section data for MVP defaults, with unit tests validating the default settings content.

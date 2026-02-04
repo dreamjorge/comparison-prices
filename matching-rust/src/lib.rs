@@ -100,4 +100,46 @@ mod tests {
         let score = calculate_score(query, &candidate);
         assert!(score > 0.5, "Score should be reasonable for fuzzy match, got {}", score);
     }
+
+    #[test]
+    fn test_match_candidates_ranking() {
+        let candidates = vec![
+            ProductCandidate {
+                id: "1".to_string(),
+                name: "Leche Entera 1L".to_string(),
+                brand: Some("Lala".to_string()),
+            },
+            ProductCandidate {
+                id: "2".to_string(),
+                name: "Arroz Blanco 1kg".to_string(),
+                brand: Some("Schettino".to_string()),
+            },
+            ProductCandidate {
+                id: "3".to_string(),
+                name: "Leche Deslactosada 1L".to_string(),
+                brand: Some("Lala".to_string()),
+            },
+        ];
+
+        let results = match_candidates("Lala Leche", &candidates, 5);
+        assert!(!results.is_empty(), "Should return at least one match");
+        assert!(
+            results[0].id == "1" || results[0].id == "3",
+            "Top result should be a leche product"
+        );
+    }
+
+    #[test]
+    fn test_no_matches_below_threshold() {
+        let candidates = vec![ProductCandidate {
+            id: "1".to_string(),
+            name: "Aceite Vegetal".to_string(),
+            brand: Some("Nutrioli".to_string()),
+        }];
+
+        let results = match_candidates("xyz completamente diferente", &candidates, 5);
+        for r in &results {
+            assert!(r.score > 0.4);
+        }
+    }
 }
