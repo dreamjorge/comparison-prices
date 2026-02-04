@@ -90,5 +90,6 @@
 - [ ] TICKET 6.3 — Rewarded ads (desbloquear features temporalmente).
 - [ ] TICKET 7.1 — Aumentar cobertura de tests a 80%+.
 - [ ] TICKET 7.2 — CI/CD para Play Store (AAB build + lint + tests).
-- [ ] TICKET 7.3 — Documentar Data Safety para Play Store listing.
+- [x] TICKET 7.3 — Documentar Data Safety para Play Store listing. ✅ **Done: docs/data-safety.md**
 - [ ] TICKET 7.4 — Refrescar expiración de Pro temporal por rewarded (ticker en background + analítica de uso).
+- [ ] TICKET 7.5 — Automatizar ejecución del plan de QA funcional con matriz de dispositivos.
