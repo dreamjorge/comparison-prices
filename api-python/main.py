@@ -1,9 +1,8 @@
 from fastapi import FastAPI, Query, Body, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
-import uuid
 import base64
 from services.normalization import NormalizationService
 
@@ -148,7 +147,7 @@ async def search_products(
     if cursor:
         try:
             start_idx = int(base64.b64decode(cursor).decode())
-        except:
+        except Exception:
             pass
             
     paged_results = results[start_idx : start_idx + limit]
