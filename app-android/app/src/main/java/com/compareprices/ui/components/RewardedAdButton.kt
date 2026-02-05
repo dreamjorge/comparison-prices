@@ -35,7 +35,7 @@ fun RewardedAdButton(
   var isLoading by remember { mutableStateOf(false) }
   var errorMessage by remember { mutableStateOf<String?>(null) }
 
-  val loadAd = fun() {
+  val loadAd = fun loadAd() {
     if (isLoading) {
       return
     }
