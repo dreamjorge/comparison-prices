@@ -4,6 +4,8 @@ export interface Store {
     logoUrl: string | null;
     currency: string;
     region: string | null;
+    state: string | null;
+    municipality: string | null;
 }
 
 export interface Product {
