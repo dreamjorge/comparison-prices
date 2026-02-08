@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +20,7 @@ class UserPreferencesRepository @Inject constructor(
 ) {
   private val isPremiumKey = booleanPreferencesKey("is_premium")
   private val rewardedUnlockUntilKey = longPreferencesKey("rewarded_unlock_until")
+  private val lastCheapestStoreKey = stringPreferencesKey("last_cheapest_store")
 
   val premiumStatus: Flow<PremiumStatus> = context.dataStore.data
     .map { preferences ->
@@ -44,6 +46,15 @@ class UserPreferencesRepository @Inject constructor(
     context.dataStore.edit { preferences ->
       val currentExpiry = preferences[rewardedUnlockUntilKey] ?: 0L
       preferences[rewardedUnlockUntilKey] = maxOf(currentExpiry, newExpiry)
+    }
+  }
+
+  fun getLastCheapestStore(): Flow<String?> =
+    context.dataStore.data.map { preferences -> preferences[lastCheapestStoreKey] }
+
+  suspend fun setLastCheapestStore(name: String) {
+    context.dataStore.edit { preferences ->
+      preferences[lastCheapestStoreKey] = name
     }
   }
 

@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.compareprices.ui.components.AdBanner
+import com.compareprices.ui.components.displayBrand
 import com.compareprices.data.local.ListItemWithProduct
 
 @Composable
@@ -210,9 +211,8 @@ private fun ListItemCard(
             color = MaterialTheme.colorScheme.primary
           )
           Spacer(modifier = Modifier.height(4.dp))
-          val brand = listItem.product.brand
           Text(
-            text = if (brand.isNullOrBlank()) "Marca generica" else brand,
+            text = displayBrand(listItem.product.brand),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
           )
