@@ -1,5 +1,14 @@
 # Plan de desarrollo (multi-agent) — Android App: Comparador de precios por lista de súper (LATAM)
 
+## Status update (2026-02-08)
+- Tools installed: `qmd` (global CLI via Bun, context compression + semantic search) and `codegraph` (dev dependency in api/, app-web/, packages/contracts/).
+- Codebase indexed in qmd collection `comparison-prices` (96 files: TS, TSX, PY, KT, RS, MD, JSON, TOML).
+- `skills.md` fully rewritten based on deep codebase analysis: Node.js API documented as legacy/reference, Android screens corrected (5 screens), tech debt table added, Developer Tools section added.
+- Vulnerability fix: Upgraded `vite` → 7.3.1, `vitest` → 4.0.18 in `app-web/` (resolved esbuild GHSA-67mh-4wv8-2f99).
+- **Architecture finding**: `api/` (Node.js) is a redundant parallel implementation of `api-python/` (FastAPI). Flagged as tech debt — consolidation recommended.
+- **Android finding**: 5 screens exist (Home, Comparador, Historial, Configuración, Paywall) — docs previously listed 4.
+- **JNI status**: Rust library declares `cdylib` but no JNI bridge code exists yet.
+
 ## Status update (2026-02-03)
 - Skills & plugins updated: `skills.md` rewritten to cover all 5 platforms (Android, Web, Python API, Rust, Contracts) with commands, key files, and Phase 2 plugins.
 - CI expanded: `.github/workflows/ci.yml` now includes Python API (ruff + pytest), Rust matching (cargo test), and contracts drift check alongside existing Android and Web jobs.
@@ -218,6 +227,30 @@
 
 ### Agent 6 (QA/Release)
 - “Crea checklist de QA + Play Store Data Safety + política de ads. Configura CI para build AAB y pruebas unitarias.”
+
+---
+
+## Estado actual por componente (2026-02-08)
+
+| Componente | Estado | Notas |
+|-----------|--------|-------|
+| **api-python** | ✅ Activo, CI completo | 4 endpoints, 210+ productos mock, 16 tests |
+| **api (Node.js)** | ⚠️ Legacy/referencia | Redundante, sin CI, sin tests, 5 productos mock |
+| **app-android** | ✅ MVP funcional | 5 pantallas, Room v4, WorkManager mock |
+| **app-web** | ✅ MVP funcional | 3 rutas, Vite 7.3.1, Vitest 4.0.18 |
+| **matching-rust** | ✅ Algoritmo completo | JNI bridge pendiente |
+| **packages/contracts** | ✅ OpenAPI SSOT | Drift check en CI |
+
+## Deuda técnica conocida
+
+| Item | Ubicación | Prioridad |
+|------|-----------|-----------|
+| Dual API (Node.js + Python en paralelo) | `api/` vs `api-python/` | Alta |
+| JNI bridge Rust→Android sin implementar | `matching-rust/` | Media |
+| PriceRefreshWorker es mock | `app-android/.../data/work/` | Media |
+| Sin manejo de errores/retry en cliente web | `app-web/src/api/client.ts` | Media |
+| Google Play Billing no integrado | `app-android/.../ui/premium/` | Media |
+| Sin tests E2E | — | Baja |
 
 ---
 

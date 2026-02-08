@@ -82,6 +82,34 @@ class NotificationHelper @Inject constructor(
     )
   }
 
+  @SuppressLint("MissingPermission")
+  fun showBestStoreChangedNotification(storeName: String, savings: Int) {
+    if (!hasNotificationPermission()) return
+
+    val intent = Intent(context, MainActivity::class.java).apply {
+      flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    }
+    val pendingIntent = PendingIntent.getActivity(
+      context,
+      1,
+      intent,
+      PendingIntent.FLAG_IMMUTABLE
+    )
+
+    val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+      .setSmallIcon(R.drawable.ic_notification)
+      .setContentTitle("¡Tienda más barata cambió!")
+      .setContentText("$storeName es ahora la más barata. Ahorra ${formatSavings(savings)}")
+      .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+      .setContentIntent(pendingIntent)
+      .setAutoCancel(true)
+      .build()
+
+    NotificationManagerCompat.from(context).notify(NOTIFICATION_ID_BASE + 1, notification)
+  }
+
+  private fun formatSavings(savings: Int): String = "$${String.format("%.0f", savings.toDouble())}"
+
   private fun hasNotificationPermission(): Boolean {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
       return true

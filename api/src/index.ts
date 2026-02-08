@@ -3,6 +3,13 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { PRODUCTS, STORES, PRICE_SNAPSHOTS } from "./mockData.js";
 import { fileURLToPath } from "node:url";
+import { startDataRefresh, isDbEmpty } from "./services/dataSync.js";
+import {
+    queryStores, countStores,
+    queryProducts, countProducts,
+    queryProduct, queryPriceHistory,
+    queryLatestPriceForProductStore,
+} from "./db/database.js";
 
 dotenv.config();
 
@@ -13,7 +20,7 @@ const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:4173,http:
     .map((origin) => origin.trim())
     .filter(Boolean);
 
-import { ListItem } from "../../packages/contracts/src/types";
+import { ListItem } from "../../packages/contracts/src/types.js";
 
 function requireApiKey(req: express.Request, res: express.Response, next: express.NextFunction) {
     const requestApiKey = req.header("X-API-Key");
@@ -44,6 +51,15 @@ function encodeCursor(offset: number): string {
     return Buffer.from(String(offset), "utf8").toString("base64");
 }
 
+function normalizeStateParam(state: string | undefined): string | undefined {
+    if (!state) return undefined;
+    return state
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim() || undefined;
+}
+
 export function createApp() {
     const app = express();
 
@@ -63,8 +79,19 @@ export function createApp() {
             return res.status(400).json({ error: "Invalid cursor" });
         }
 
-        const stores = STORES.slice(offset, offset + limit);
-        const nextCursor = offset + limit < STORES.length ? encodeCursor(offset + limit) : null;
+        const state = normalizeStateParam(req.query.state as string | undefined);
+
+        if (isDbEmpty()) {
+            // Fallback to mock data
+            const filtered = state ? STORES.filter(s => s.state?.toLowerCase() === state) : STORES;
+            const stores = filtered.slice(offset, offset + limit);
+            const nextCursor = offset + limit < filtered.length ? encodeCursor(offset + limit) : null;
+            return res.json({ stores, nextCursor });
+        }
+
+        const stores = queryStores(state, limit, offset);
+        const total = countStores(state);
+        const nextCursor = offset + limit < total ? encodeCursor(offset + limit) : null;
         res.json({ stores, nextCursor });
     });
 
@@ -77,37 +104,51 @@ export function createApp() {
             return res.status(400).json({ error: "Invalid cursor" });
         }
 
-        const filtered = PRODUCTS.filter(p =>
-            p.name.toLowerCase().includes(q) ||
-            p.brand?.toLowerCase().includes(q)
-        );
+        const state = normalizeStateParam(req.query.state as string | undefined);
 
-        const paginated = filtered.slice(offset, offset + limit);
-        const nextCursor = (offset + limit < filtered.length) ? encodeCursor(offset + limit) : null;
+        if (isDbEmpty()) {
+            // Fallback to mock data
+            const filtered = PRODUCTS.filter(p =>
+                p.name.toLowerCase().includes(q) ||
+                p.brand?.toLowerCase().includes(q)
+            );
+            const paginated = filtered.slice(offset, offset + limit);
+            const nextCursor = (offset + limit < filtered.length) ? encodeCursor(offset + limit) : null;
+            return res.json({ products: paginated, nextCursor });
+        }
 
-        res.json({
-            products: paginated,
-            nextCursor
-        });
+        const products = queryProducts(q, state, limit, offset);
+        const total = countProducts(q, state);
+        const nextCursor = (offset + limit < total) ? encodeCursor(offset + limit) : null;
+
+        res.json({ products, nextCursor });
     });
 
     // GET /v1/price-history
     app.get("/v1/price-history", (req, res) => {
         const productId = req.query.productId as string;
-        const product = PRODUCTS.find(p => p.id === productId);
 
+        if (isDbEmpty()) {
+            const product = PRODUCTS.find(p => p.id === productId);
+            if (!product) {
+                return res.status(404).json({ error: "Product not found" });
+            }
+            const history = PRICE_SNAPSHOTS
+                .filter(s => s.productId === productId)
+                .map(s => ({
+                    capturedAt: s.capturedAt,
+                    price: s.price,
+                    isPromo: s.isPromo
+                }));
+            return res.json({ product, history });
+        }
+
+        const product = queryProduct(productId);
         if (!product) {
             return res.status(404).json({ error: "Product not found" });
         }
 
-        const history = PRICE_SNAPSHOTS
-            .filter(s => s.productId === productId)
-            .map(s => ({
-                capturedAt: s.capturedAt,
-                price: s.price,
-                isPromo: s.isPromo
-            }));
-
+        const history = queryPriceHistory(productId);
         res.json({ product, history });
     });
 
@@ -130,27 +171,64 @@ export function createApp() {
             return res.status(400).json({ error: "Each item requires a productId and quantity > 0" });
         }
 
-        const totals = STORES.map(store => {
-            let total = 0;
-            items.forEach((item: ListItem) => {
-                const snapshot = PRICE_SNAPSHOTS.find(
-                    s => s.productId === item.productId && s.storeId === store.id
-                );
-                if (snapshot) {
-                    total += snapshot.price * item.quantity;
-                }
+        if (isDbEmpty()) {
+            const totals = STORES.map(store => {
+                let total = 0;
+                items.forEach((item: ListItem) => {
+                    const snapshot = PRICE_SNAPSHOTS.find(
+                        s => s.productId === item.productId && s.storeId === store.id
+                    );
+                    if (snapshot) {
+                        total += snapshot.price * item.quantity;
+                    }
+                });
+
+                return {
+                    storeId: store.id,
+                    total: parseFloat(total.toFixed(2)),
+                    updatedAt: new Date().toISOString()
+                };
             });
 
-            return {
-                storeId: store.id,
-                total: parseFloat(total.toFixed(2)),
-                updatedAt: new Date().toISOString()
-            };
-        });
+            const sortedTotals = [...totals].sort((a, b) => a.total - b.total);
+            const resultWithSavings = totals.map(t => {
+                const isCheapest = t.total === sortedTotals[0].total;
+                let savings = null;
+                if (isCheapest && sortedTotals.length > 1) {
+                    savings = parseFloat((sortedTotals[1].total - t.total).toFixed(2));
+                }
+                return { ...t, savings };
+            });
+
+            return res.json({ totals: resultWithSavings });
+        }
+
+        // Get all stores from DB and calculate totals for each
+        const allStores = queryStores(undefined, 100, 0);
+        const totals = allStores
+            .map(store => {
+                let total = 0;
+                const updatedAt = new Date().toISOString();
+                items.forEach((item: ListItem) => {
+                    const snapshot = queryLatestPriceForProductStore(item.productId, store.id);
+                    if (snapshot) {
+                        total += snapshot.price * item.quantity;
+                    }
+                });
+
+                if (total === 0) return null;
+
+                return {
+                    storeId: store.id,
+                    total: parseFloat(total.toFixed(2)),
+                    updatedAt
+                };
+            })
+            .filter((t): t is NonNullable<typeof t> => t !== null);
 
         const sortedTotals = [...totals].sort((a, b) => a.total - b.total);
         const resultWithSavings = totals.map(t => {
-            const isCheapest = t.total === sortedTotals[0].total;
+            const isCheapest = t.total === sortedTotals[0]?.total;
             let savings = null;
             if (isCheapest && sortedTotals.length > 1) {
                 savings = parseFloat((sortedTotals[1].total - t.total).toFixed(2));
@@ -168,6 +246,7 @@ const app = createApp();
 
 const entrypoint = process.argv[1] ? fileURLToPath(import.meta.url) === process.argv[1] : false;
 if (entrypoint) {
+    startDataRefresh();
     app.listen(port, () => {
         console.log(`🚀 API ready at http://localhost:${port}/v1`);
     });
