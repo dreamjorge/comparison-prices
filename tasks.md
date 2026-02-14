@@ -89,3 +89,5 @@
 - [ ] TICKET 7.1 — Aumentar cobertura de tests a 80%+.
 - [ ] TICKET 7.2 — CI/CD para Play Store (AAB build + lint + tests).
 - [ ] TICKET 7.3 — Documentar Data Safety para Play Store listing.
+- [~] TICKET 11.3 — Integración compliant de fuentes externas + link-out Google Shopping (en progreso: API + contratos + UI listos; faltan pruebas end-to-end).
+- [ ] TICKET 11.4 — Hardening de pruebas y rollout para integración compliant.

@@ -17,15 +17,27 @@ class UserPreferencesRepository @Inject constructor(
   @ApplicationContext private val context: Context
 ) {
   private val isPremiumKey = booleanPreferencesKey("is_premium")
+  private val remoteCompareEnabledKey = booleanPreferencesKey("remote_compare_enabled")
 
   val isPremium: Flow<Boolean> = context.dataStore.data
     .map { preferences ->
       preferences[isPremiumKey] ?: false
     }
 
+  val remoteCompareEnabled: Flow<Boolean> = context.dataStore.data
+    .map { preferences ->
+      preferences[remoteCompareEnabledKey] ?: false
+    }
+
   suspend fun setPremium(isPremium: Boolean) {
     context.dataStore.edit { preferences ->
       preferences[isPremiumKey] = isPremium
+    }
+  }
+
+  suspend fun setRemoteCompareEnabled(enabled: Boolean) {
+    context.dataStore.edit { preferences ->
+      preferences[remoteCompareEnabledKey] = enabled
     }
   }
 }

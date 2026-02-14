@@ -1,4 +1,11 @@
-import { Store, Product, StoreTotal, ListItem, PriceSnapshot } from "../../../packages/contracts/src/types";
+import {
+    CoverageSummary,
+    ListItem,
+    PriceSnapshot,
+    Product,
+    Store,
+    StoreTotal
+} from "../../../packages/contracts/src/types";
 
 export type { Store, Product, StoreTotal, ListItem, PriceSnapshot };
 
@@ -11,22 +18,35 @@ export async function fetchStores(): Promise<Store[]> {
     return data.stores;
 }
 
-export async function searchProducts(q: string): Promise<Product[]> {
-    const response = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(q)}`);
+export interface SearchProductsOptions {
+    includeExternalLinks?: boolean;
+}
+
+export async function searchProducts(q: string, options: SearchProductsOptions = {}): Promise<Product[]> {
+    const params = new URLSearchParams({ q });
+    if (options.includeExternalLinks) {
+        params.set("includeExternalLinks", "true");
+    }
+    const response = await fetch(`${API_BASE_URL}/search?${params.toString()}`);
     if (!response.ok) throw new Error("Failed to search products");
     const data = await response.json();
     return data.products;
 }
 
-export async function calculateListTotals(items: ListItem[]): Promise<StoreTotal[]> {
+export interface ListTotalsApiResponse {
+    totals: StoreTotal[];
+    coverage: CoverageSummary;
+    warnings?: string[] | null;
+}
+
+export async function calculateListTotals(items: ListItem[]): Promise<ListTotalsApiResponse> {
     const response = await fetch(`${API_BASE_URL}/list-totals`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items })
     });
     if (!response.ok) throw new Error("Failed to calculate totals");
-    const data = await response.json();
-    return data.totals;
+    return response.json() as Promise<ListTotalsApiResponse>;
 }
 
 export async function fetchPriceHistory(productId: string): Promise<{ product: Product; history: PriceSnapshot[] }> {

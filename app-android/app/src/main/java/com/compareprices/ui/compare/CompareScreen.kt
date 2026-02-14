@@ -92,6 +92,16 @@ fun CompareScreen(
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.SemiBold
           )
+          Spacer(modifier = Modifier.height(8.dp))
+          Text(
+            text = if (uiState.remoteCompareEnabled) {
+              "Origen de precios: Remoto (proveedores permitidos)"
+            } else {
+              "Origen de precios: Local demo (offline-first)"
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+          )
           Spacer(modifier = Modifier.height(12.dp))
           OutlinedTextField(
             value = query,

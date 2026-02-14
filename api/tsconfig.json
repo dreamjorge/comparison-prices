@@ -4,7 +4,7 @@
         "module": "ESNext",
         "moduleResolution": "Node",
         "outDir": "./dist",
-        "rootDir": "./src",
+        "rootDir": "..",
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
@@ -17,7 +17,8 @@
         }
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "../packages/contracts/src/types.ts"
     ],
     "exclude": [
         "node_modules",

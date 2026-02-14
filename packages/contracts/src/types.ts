@@ -13,6 +13,8 @@ export interface Product {
     sizeLabel: string | null;
     imageUrl: string | null;
     category: string | null;
+    externalUrl?: string | null;
+    sourceHints?: string[] | null;
 }
 
 export interface PriceSnapshot {
@@ -20,6 +22,8 @@ export interface PriceSnapshot {
     storeId: string;
     price: number;
     capturedAt: string;
+    source: string;
+    sourceCapturedAt: string;
     isPromo: boolean;
 }
 
@@ -34,4 +38,11 @@ export interface StoreTotal {
     total: number;
     updatedAt: string;
     savings: number | null;
+    matchedItems?: number;
+    source?: string | null;
+}
+
+export interface CoverageSummary {
+    matchedItems: number;
+    unmatchedItems: number;
 }

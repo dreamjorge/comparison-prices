@@ -1,12 +1,18 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { PRODUCTS, STORES, PRICE_SNAPSHOTS } from "./mockData.js";
+import { PRODUCTS } from "./mockData.js";
+import { providerAggregator } from "./providers/index.js";
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 4000;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 60;
+const SEARCH_CACHE_TTL_MS = 30_000;
+const requestBuckets = new Map<string, { count: number; windowStart: number }>();
+const searchCache = new Map<string, { expiresAt: number; payload: { products: unknown[]; nextCursor: string | null } }>();
 
 import { ListItem } from "../../packages/contracts/src/types";
 
@@ -17,9 +23,28 @@ app.use(cors({
 }));
 app.use(express.json());
 
+app.use((req, res, next) => {
+    const key = (req.ip || req.socket.remoteAddress || "unknown").toString();
+    const now = Date.now();
+    const existing = requestBuckets.get(key);
+
+    if (!existing || now - existing.windowStart > RATE_LIMIT_WINDOW_MS) {
+        requestBuckets.set(key, { count: 1, windowStart: now });
+        return next();
+    }
+
+    if (existing.count >= RATE_LIMIT_MAX_REQUESTS) {
+        return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
+    }
+
+    existing.count += 1;
+    requestBuckets.set(key, existing);
+    return next();
+});
+
 // GET /v1/stores
 app.get("/v1/stores", (req, res) => {
-    res.json({ stores: STORES });
+    res.json({ stores: providerAggregator.listStores() });
 });
 
 // GET /v1/search
@@ -27,19 +52,42 @@ app.get("/v1/search", (req, res) => {
     const q = (req.query.q as string || "").toLowerCase();
     const limit = parseInt(req.query.limit as string) || 20;
     const cursor = parseInt(req.query.cursor as string) || 0;
+    const storeId = (req.query.storeId as string | undefined) || undefined;
+    const zoneId = (req.query.zoneId as string | undefined) || undefined;
+    const lat = req.query.lat ? Number(req.query.lat) : undefined;
+    const lon = req.query.lon ? Number(req.query.lon) : undefined;
+    const includeExternalLinks = req.query.includeExternalLinks === "true";
 
-    const filtered = PRODUCTS.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.brand?.toLowerCase().includes(q)
-    );
+    const cacheKey = JSON.stringify({ q, limit, cursor, storeId, zoneId, lat, lon, includeExternalLinks });
+    const cached = searchCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+        return res.json(cached.payload);
+    }
 
-    const paginated = filtered.slice(cursor, cursor + limit);
-    const nextCursor = (cursor + limit < filtered.length) ? (cursor + limit).toString() : null;
+    const startedAt = Date.now();
+    const searchResult = providerAggregator.searchProducts({
+        q,
+        limit,
+        cursor,
+        storeId,
+        zoneId,
+        lat,
+        lon,
+        includeExternalLinks
+    });
 
     res.json({
-        products: paginated,
-        nextCursor
+        products: searchResult.products,
+        nextCursor: searchResult.nextCursor
     });
+    searchCache.set(cacheKey, {
+        expiresAt: Date.now() + SEARCH_CACHE_TTL_MS,
+        payload: {
+            products: searchResult.products,
+            nextCursor: searchResult.nextCursor
+        }
+    });
+    console.log(`[provider-search] q="${q}" zone="${zoneId ?? "-"}" includeLinks=${includeExternalLinks} count=${searchResult.products.length} latencyMs=${Date.now() - startedAt}`);
 });
 
 // GET /v1/price-history
@@ -51,13 +99,7 @@ app.get("/v1/price-history", (req, res) => {
         return res.status(404).json({ error: "Product not found" });
     }
 
-    const history = PRICE_SNAPSHOTS
-        .filter(s => s.productId === productId)
-        .map(s => ({
-            capturedAt: s.capturedAt,
-            price: s.price,
-            isPromo: s.isPromo
-        }));
+    const history = providerAggregator.getPriceHistory(productId);
 
     res.json({ product, history });
 });
@@ -70,36 +112,8 @@ app.post("/v1/list-totals", (req, res) => {
         return res.status(400).json({ error: "Invalid items" });
     }
 
-    const totals = STORES.map(store => {
-        let total = 0;
-        items.forEach((item: ListItem) => {
-            const snapshot = PRICE_SNAPSHOTS.find(
-                s => s.productId === item.productId && s.storeId === store.id
-            );
-            if (snapshot) {
-                total += snapshot.price * item.quantity;
-            }
-        });
-
-        return {
-            storeId: store.id,
-            total: parseFloat(total.toFixed(2)),
-            updatedAt: new Date().toISOString()
-        };
-    });
-
-    // Calculate savings vs next cheapest (optional for now, but good to have)
-    const sortedTotals = [...totals].sort((a, b) => a.total - b.total);
-    const resultWithSavings = totals.map(t => {
-        const isCheapest = t.total === sortedTotals[0].total;
-        let savings = null;
-        if (isCheapest && sortedTotals.length > 1) {
-            savings = parseFloat((sortedTotals[1].total - t.total).toFixed(2));
-        }
-        return { ...t, savings };
-    });
-
-    res.json({ totals: resultWithSavings });
+    const result = providerAggregator.calculateListTotals(items as ListItem[]);
+    res.json(result);
 });
 
 app.listen(port, () => {

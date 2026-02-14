@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { calculateListTotals, fetchStores, Store, StoreTotal, ListItem } from "../api/client";
+import { calculateListTotals, fetchStores, ListTotalsApiResponse, ListItem, Store, StoreTotal } from "../api/client";
 
 const DEMO_ITEMS: ListItem[] = [
   { productId: "p1", quantity: 2 }, // Leche
@@ -9,6 +9,8 @@ const DEMO_ITEMS: ListItem[] = [
 
 export function ComparePage() {
   const [totals, setTotals] = useState<StoreTotal[]>([]);
+  const [coverage, setCoverage] = useState<ListTotalsApiResponse["coverage"] | null>(null);
+  const [warnings, setWarnings] = useState<string[]>([]);
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +21,9 @@ export function ComparePage() {
       fetchStores()
     ])
       .then(([totalsData, storesData]) => {
-        setTotals(totalsData);
+        setTotals(totalsData.totals);
+        setCoverage(totalsData.coverage);
+        setWarnings(totalsData.warnings ?? []);
         setStores(storesData);
       })
       .catch((err) => setError(err.message))
@@ -36,6 +40,9 @@ export function ComparePage() {
           Calculando el total de tu lista "Compra semanal" (3 productos)
           en tiempo real desde el servidor.
         </p>
+        <p className="muted">
+          Fuente interna: provider_blend. Precios pueden variar; verifica en tienda/fuente.
+        </p>
       </header>
 
       {error && (
@@ -49,33 +56,53 @@ export function ComparePage() {
           <p>Calculando mejores precios...</p>
         </div>
       ) : (
-        <div className="grid">
-          {totals.map((t) => {
-            const isCheapest = t.savings !== null;
-            return (
-              <article className="card" key={t.storeId} style={{
-                border: isCheapest ? '1px solid #4caf50' : '1px solid rgba(255,255,255,0.2)',
-                background: isCheapest ? 'rgba(76, 175, 80, 0.05)' : 'transparent'
-              }}>
-                <div className="badge">
-                  {isCheapest ? "Mejor opción" : "Alternativa"}
-                </div>
-                <h3>{getStoreName(t.storeId)}</h3>
-                <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-                  Total: ${t.total.toFixed(2)}
-                </p>
-                {t.savings !== null && (
-                  <p style={{ color: '#4caf50', fontWeight: 'bold' }}>
-                    ¡Ahorras ${t.savings.toFixed(2)} vs siguiente opción!
+        <>
+          <div className="card">
+            <h3>Cobertura de lista</h3>
+            <p>
+              Items con precio encontrado: {coverage?.matchedItems ?? 0}. Sin cobertura: {coverage?.unmatchedItems ?? 0}.
+            </p>
+            {warnings.length > 0 && (
+              <ul>
+                {warnings.map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div className="grid">
+            {totals.map((t) => {
+              const isCheapest = t.savings !== null;
+              return (
+                <article className="card" key={t.storeId} style={{
+                  border: isCheapest ? '1px solid #4caf50' : '1px solid rgba(255,255,255,0.2)',
+                  background: isCheapest ? 'rgba(76, 175, 80, 0.05)' : 'transparent'
+                }}>
+                  <div className="badge">
+                    {isCheapest ? "Mejor opción" : "Alternativa"}
+                  </div>
+                  <h3>{getStoreName(t.storeId)}</h3>
+                  <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
+                    Total: ${t.total.toFixed(2)}
                   </p>
-                )}
-                <p style={{ fontSize: '0.8rem', opacity: 0.6, marginTop: '0.5rem' }}>
-                  Actualizado: {new Date(t.updatedAt || "").toLocaleTimeString()}
-                </p>
-              </article>
-            );
-          })}
-        </div>
+                  {typeof t.matchedItems === "number" && (
+                    <p className="muted small">
+                      Cobertura tienda: {t.matchedItems}/{DEMO_ITEMS.length} productos
+                    </p>
+                  )}
+                  {t.savings !== null && (
+                    <p style={{ color: '#4caf50', fontWeight: 'bold' }}>
+                      ¡Ahorras ${t.savings.toFixed(2)} vs siguiente opción!
+                    </p>
+                  )}
+                  <p style={{ fontSize: '0.8rem', opacity: 0.6, marginTop: '0.5rem' }}>
+                    Fuente: {t.source ?? "provider_blend"} | Actualizado: {new Date(t.updatedAt || "").toLocaleTimeString()}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
+        </>
       )}
     </section>
   );

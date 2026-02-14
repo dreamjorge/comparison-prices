@@ -49,6 +49,11 @@ fun defaultSettingsSections(isPremium: Boolean = false): List<SettingsSection> =
           title = "Meta de ahorro",
           value = "Ahorrar $120 esta semana",
           icon = SettingsIcon.Payments
+        ),
+        SettingsItem(
+          title = "Origen de precios",
+          value = "Local demo (remoto en preparación)",
+          icon = SettingsIcon.Info
         )
       )
     ),

@@ -9,8 +9,10 @@ import com.compareprices.data.local.PriceSnapshotDao
 import com.compareprices.data.local.ShoppingListDao
 import com.compareprices.data.local.ShoppingListWithItems
 import com.compareprices.data.local.seedDemoDataIfNeeded
+import com.compareprices.data.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +24,8 @@ class CompareViewModel @Inject constructor(
   private val productDao: ProductDao,
   private val shoppingListDao: ShoppingListDao,
   private val listItemDao: ListItemDao,
-  private val priceSnapshotDao: PriceSnapshotDao
+  private val priceSnapshotDao: PriceSnapshotDao,
+  private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
   private val _uiState = MutableStateFlow(CompareUiState())
   val uiState: StateFlow<CompareUiState> = _uiState.asStateFlow()
@@ -32,13 +35,22 @@ class CompareViewModel @Inject constructor(
       seedDemoDataIfNeeded(database, shoppingListDao, productDao, listItemDao, priceSnapshotDao)
     }
     viewModelScope.launch {
-      shoppingListDao.observeLatestList().collect { list ->
-        _uiState.value = CompareUiState(list)
+      combine(
+        shoppingListDao.observeLatestList(),
+        userPreferencesRepository.remoteCompareEnabled
+      ) { list, remoteEnabled ->
+        CompareUiState(
+          list = list,
+          remoteCompareEnabled = remoteEnabled
+        )
+      }.collect { state ->
+        _uiState.value = state
       }
     }
   }
 }
 
 data class CompareUiState(
-  val list: ShoppingListWithItems? = null
+  val list: ShoppingListWithItems? = null,
+  val remoteCompareEnabled: Boolean = false
 )

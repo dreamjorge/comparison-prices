@@ -564,3 +564,39 @@ Cuando una migración remapea `productId` y deduplica `list_items`, es posible q
 **Criterios de Aceptación**:
 - [ ] Gráfica de tendencia en Android.
 - [ ] Recomendación textual (ej: "Suele bajar los martes").
+
+---
+
+### TICKET 11.3 — Integración compliant de fuentes externas + link-out Google Shopping
+**Tipo:** Feature  
+**Prioridad:** P1  
+**Owner:** Agent 3 + Agent 2 + Agent Web/API
+**Status:** In Progress (2026-02-14)
+
+**Descripción**
+Integrar agregación de proveedores permitidos en backend y exponer links de salida a Google Shopping sin ingerir resultados de Google.
+
+**Criterios de aceptación**
+- [x] Agregador de proveedores en `api/` sin scraping no autorizado.
+- [x] Contrato API con `source`, `coverage`, `warnings`.
+- [x] UI web/android con link-out opcional y etiquetado de fuente.
+- [ ] Pruebas de contrato, agregación y fallback local.
+
+**Notas de implementación**
+- Ver handoff técnico para siguiente agente: `docs/handoff-ticket-11.3.md`.
+
+---
+
+### TICKET 11.4 — Hardening de pruebas y rollout para integración compliant
+**Tipo:** Task  
+**Prioridad:** P1  
+**Owner:** Agent 6 (QA) + Agent Web/API
+
+**Descripción**
+Endurecer pruebas automáticas y validación cross-platform para la integración de proveedores y link-out compliant.
+
+**Criterios de aceptación**
+- [ ] Suite de tests API para dedup/ranking/coverage/warnings.
+- [ ] Ejecución confiable de tests de contratos en Windows y CI.
+- [ ] Ejecución de tests web en entorno limpio con dependencias instaladas.
+- [ ] Checklist de rollout con validación de textos legales y etiquetado de fuente.
