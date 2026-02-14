@@ -24,56 +24,92 @@ Definir e implementar un roadmap de APIs/fuentes legales para México, maximizan
 4. Walmart Marketplace MX (solo partner aprobado)
 5. Fuentes open-data/crowd como complemento de metadata
 
-## Matriz de decisión (llenar)
+## Matriz de decisión
 Escala sugerida: 1 (bajo) a 5 (alto)
 
 | Proveedor | Cobertura MX | Frescura | Riesgo legal | Esfuerzo integración | Costo | Comentarios |
 | --- | --- | --- | --- | --- | --- | --- |
-| PROFECO QQP |  |  |  |  |  |  |
-| Retailer partner feed A |  |  |  |  |  |  |
-| Mercado Libre MLM |  |  |  |  |  |  |
-| Walmart Marketplace MX |  |  |  |  |  |  |
-| Open Food Facts/Open Prices |  |  |  |  |  |  |
+| PROFECO QQP | 3 | 3 | 1 | 2 | 1 | Mejor entrada legal para baseline de precios; no cubre todo el catálogo ni real-time. |
+| Retailer partner feed A | 5 | 4 | 1 | 4 | 4 | Mejor calidad/coverage, requiere convenio comercial y SLA. |
+| Mercado Libre MLM | 4 | 4 | 1 | 3 | 2 | Complementa categorías retail/ecommerce; no reemplaza supermercados físicos. |
+| Walmart Marketplace MX | 3 | 4 | 1 | 4 | 3 | Solo viable con acceso oficial de partner aprobado. |
+| Open Food Facts/Open Prices | 2 | 2 | 1 | 2 | 1 | Útil para metadata y fallback; cobertura de precio limitada en MX. |
 
-## Ranking final (llenar)
-1. 
-2. 
-3. 
-4. 
-5. 
+## Ranking final
+1. PROFECO QQP (fase inicial obligatoria)
+2. Retailer partner feed A (primer source de producción)
+3. Mercado Libre MLM (complementario por categoría)
+4. Walmart Marketplace MX (si hay acceso partner)
+5. Open Food Facts/Open Prices (metadata + fallback)
 
 Rationale:
-- 
+- PROFECO permite arrancar rápido y legal con cobertura mínima viable.
+- El primer partner feed sube precisión/frescura y reduce `unmatchedItems`.
+- Mercado Libre aporta amplitud de oferta sin depender de scraping.
+- Walmart Marketplace es opcional por requisito de acceso.
+- Fuentes open-data quedan como soporte, no como core pricing.
 
 ## Diseño de integración (por proveedor)
-Para cada proveedor seleccionado, documentar:
-- `Provider ID` (ej. `profeco_qqp`, `retailer_partner_a`)
-- Endpoint/base URL
-- Auth requerida (API key/OAuth/ninguna)
-- Límite de rate y estrategia de cache
-- Campos mínimos mapeados a contrato:
-  - Product: `id`, `name`, `brand`, `sizeLabel`, `sourceHints`
-  - PriceSnapshot: `productId`, `storeId`, `price`, `source`, `sourceCapturedAt`
-- Estrategia de normalización:
-  - unidades (ml/l, g/kg), marca, tamaño, claves determinísticas
-- Reglas de fallback:
-  - sin cobertura, stale data, error de provider
+### 1) PROFECO QQP
+- `Provider ID`: `profeco_qqp`
+- Auth: ninguna (dataset público)
+- Cache default: 24h por corte de dataset
+- Mapping mínimo:
+  - Product: `name`, `brand` (si disponible), `sizeLabel` (si disponible), `sourceHints=["profeco_qqp"]`
+  - PriceSnapshot: `price`, `source="profeco_qqp"`, `sourceCapturedAt`
+- Fallback:
+  - Si no hay coincidencia por zona, responder con warning de cobertura parcial.
+
+### 2) Retailer partner feed A
+- `Provider ID`: `retailer_partner_a`
+- Auth: API key u OAuth según contrato
+- Cache default: 15–60 min según rate-limit contractual
+- Mapping mínimo:
+  - Product completo con SKU externo determinístico
+  - PriceSnapshot con `sourceCapturedAt` de feed o timestamp de ingestión
+- Fallback:
+  - Si API falla, mantener último snapshot válido y warning `stale`.
+
+### 3) Mercado Libre MLM
+- `Provider ID`: `meli_mlm`
+- Auth: credenciales de app en plataforma developers
+- Cache default: 15 min por query/zone/category
+- Mapping mínimo:
+  - Product: título + atributos normalizados a `brand/sizeLabel`
+  - PriceSnapshot: precio publicado + `source="meli_mlm"`
+- Fallback:
+  - Excluir de cálculo principal si no cumple normalización de unidad/tamaño.
+
+### 4) Walmart Marketplace MX (condicional)
+- `Provider ID`: `walmart_mx_marketplace`
+- Habilitar solo con acceso legal confirmado.
+
+### Reglas comunes
+- Normalizar marca/texto/unidad en capa compartida (`api/src/providers/utils.ts`).
+- Aplicar dedup por `normalizedKey`.
+- Exponer `coverage` y `warnings` en `/list-totals`.
 
 ## Plan de implementación 30/60/90 días
 ### Día 0–30
-- Integrar PROFECO QQP como proveedor inicial.
-- Medir `coverage` y `unmatchedItems` por zona.
-- Definir alertas de calidad de datos (staleness).
+- Implementar `profeco_qqp` provider y pipeline de ingestión batch.
+- Publicar dashboard base de métricas (`coverage`, `unmatchedItems`, `staleness_hours`).
+- Definir política de cache/rate y kill switch por provider.
 
 ### Día 31–60
-- Integrar primer retailer partner feed licenciado.
-- Ajustar ranking multi-provider por frescura y calidad.
-- Mejorar matching por unidad/tamaño.
+- Integrar `retailer_partner_a` con credenciales por entorno.
+- Activar ranking multi-source con prioridad por frescura y confianza.
+- Afinar matching de unidad/tamaño y tolerancias de equivalencia.
 
 ### Día 61–90
-- Integrar Mercado Libre como fuente complementaria por categoría.
-- Optimizar score de confianza por source.
-- Evaluar expansión a 2do retailer partner.
+- Integrar `meli_mlm` como complemento en categorías seleccionadas.
+- Ajustar score de confianza por source y calidad de match.
+- Evaluar segundo partner feed retailer en zonas de baja cobertura.
+
+## Backlog derivado inmediato
+- [ ] Crear `api/src/providers/profecoQqp.ts`.
+- [ ] Definir contrato de configuración por provider (`env` + secretos).
+- [ ] Añadir pruebas de integración para dedup/ranking/coverage.
+- [ ] Añadir tablero básico de observabilidad por provider.
 
 ## Métricas de éxito
 - `%coverage` global y por tienda/zona
