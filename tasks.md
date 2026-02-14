@@ -91,3 +91,4 @@
 - [ ] TICKET 7.3 — Documentar Data Safety para Play Store listing.
 - [~] TICKET 11.3 — Integración compliant de fuentes externas + link-out Google Shopping (en progreso: API + contratos + UI listos; faltan pruebas end-to-end).
 - [ ] TICKET 11.4 — Hardening de pruebas y rollout para integración compliant.
+- [ ] TICKET 11.5 — Selección e integración de APIs legales para México (roadmap proveedores).

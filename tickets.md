@@ -600,3 +600,46 @@ Endurecer pruebas automáticas y validación cross-platform para la integración
 - [ ] Ejecución confiable de tests de contratos en Windows y CI.
 - [ ] Ejecución de tests web en entorno limpio con dependencias instaladas.
 - [ ] Checklist de rollout con validación de textos legales y etiquetado de fuente.
+
+---
+
+### TICKET 11.5 — Selección e integración de APIs legales para México (Roadmap proveedores)
+**Tipo:** Task  
+**Prioridad:** P1  
+**Owner:** Agent 3 (Data) + Agent Web/API + Agent 6 (QA/Compliance)
+
+**Descripción**
+Definir e implementar roadmap de fuentes legales para México, priorizando cobertura real y bajo riesgo legal para precios de supermercado/ecommerce.
+
+**Alcance**
+- Priorizar y justificar proveedores para MX:
+  - PROFECO QQP (datos abiertos)
+  - APIs/feeds de retailers con convenio
+  - Mercado Libre (MLM) como fuente complementaria
+- Formalizar contratos de cada proveedor en `api/src/providers/`.
+- Definir reglas de etiquetado de fuente, frescura y cobertura para UI.
+
+**Fuera de alcance**
+- Scraping no autorizado de Google Shopping/Search.
+- Ingesta de catálogos protegidos sin permiso de uso.
+
+**Entregables**
+- Documento de decisión técnica y legal en `docs/provider-roadmap-mx.md`.
+- Matriz comparativa por proveedor (cobertura, frescura, costo, riesgo legal, esfuerzo).
+- Plan por fases (30/60/90 días) y orden de implementación.
+- Definición de métricas: `%coverage`, `%unmatchedItems`, `staleness_hours`, `source_mix`.
+
+**Criterios de aceptación**
+- [ ] Existe ranking final de proveedores para MX con rationale.
+- [ ] Existe definición de implementación por fases con owners.
+- [ ] Existe checklist compliance (atribución, términos de uso, límites de rate).
+- [ ] Se actualiza backlog con tareas técnicas derivadas (adaptadores concretos por proveedor).
+
+**Dependencias**
+- TICKET 11.3 (base de agregador y contrato compliant).
+- TICKET 11.4 (hardening de pruebas y rollout).
+
+**Notas**
+- Usar texto legal estandarizado en UI: "Precios pueden variar; verifica en tienda/fuente."
+- Mantener `externalUrl` únicamente como navegación externa opcional.
+- Documento base para ejecución: `docs/provider-roadmap-mx.md`.

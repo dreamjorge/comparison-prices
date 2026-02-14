@@ -27,3 +27,20 @@ Use `bundletool` to install the AAB on a test device:
 bundletool build-apks --bundle=app-release.aab --output=app.apks --ks=keystore.jks
 bundletool install-apks --apks=app.apks
 ```
+
+## 5. Windows Dev Launch Scripts (Web/API)
+From repo root:
+
+```powershell
+.\scripts\start-web.ps1
+```
+
+or (web + API in two terminals):
+
+```powershell
+.\scripts\start-stack.ps1
+```
+
+CMD wrappers are also available:
+- `scripts\start-web.cmd`
+- `scripts\start-stack.cmd`
