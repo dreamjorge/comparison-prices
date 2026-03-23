@@ -28,6 +28,10 @@ app.use((req, res, next) => {
     const now = Date.now();
     const existing = requestBuckets.get(key);
 
+    if (existing && now - existing.windowStart > RATE_LIMIT_WINDOW_MS * 2) {
+        requestBuckets.delete(key);
+    }
+
     if (!existing || now - existing.windowStart > RATE_LIMIT_WINDOW_MS) {
         requestBuckets.set(key, { count: 1, windowStart: now });
         return next();
@@ -76,17 +80,12 @@ app.get("/v1/search", (req, res) => {
         includeExternalLinks
     });
 
-    res.json({
+    const payload = {
         products: searchResult.products,
         nextCursor: searchResult.nextCursor
-    });
-    searchCache.set(cacheKey, {
-        expiresAt: Date.now() + SEARCH_CACHE_TTL_MS,
-        payload: {
-            products: searchResult.products,
-            nextCursor: searchResult.nextCursor
-        }
-    });
+    };
+    searchCache.set(cacheKey, { expiresAt: Date.now() + SEARCH_CACHE_TTL_MS, payload });
+    res.json(payload);
     console.log(`[provider-search] q="${q}" zone="${zoneId ?? "-"}" includeLinks=${includeExternalLinks} count=${searchResult.products.length} latencyMs=${Date.now() - startedAt}`);
 });
 

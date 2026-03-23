@@ -72,7 +72,7 @@ export function ComparePage() {
           </div>
           <div className="grid">
             {totals.map((t) => {
-              const isCheapest = t.savings !== null;
+              const isCheapest = t.storeId === totals[0]?.storeId;
               return (
                 <article className="card" key={t.storeId} style={{
                   border: isCheapest ? '1px solid #4caf50' : '1px solid rgba(255,255,255,0.2)',

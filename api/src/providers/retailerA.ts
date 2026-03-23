@@ -3,7 +3,7 @@ import { ProviderAdapter, ProviderProductMatch, ProviderSearchParams } from "./t
 import { createGoogleShoppingUrl, normalizedProductKey, normalizeText } from "./utils.js";
 
 const SOURCE = "retailer_a_feed";
-const sourceCapturedAt = new Date().toISOString();
+const SOURCE_CAPTURED_AT = "2026-03-01T00:00:00.000Z";
 
 const STORES: Store[] = [
   { id: "s1", name: "Walmart", logoUrl: null, currency: "MXN", region: "Centro" },
@@ -18,14 +18,14 @@ const PRODUCTS: Product[] = [
 ];
 
 const SNAPSHOTS: PriceSnapshot[] = [
-  { productId: "p1", storeId: "s1", price: 24.5, capturedAt: sourceCapturedAt, source: SOURCE, sourceCapturedAt, isPromo: false },
-  { productId: "p2", storeId: "s1", price: 45, capturedAt: sourceCapturedAt, source: SOURCE, sourceCapturedAt, isPromo: false },
-  { productId: "p3", storeId: "s1", price: 32, capturedAt: sourceCapturedAt, source: SOURCE, sourceCapturedAt, isPromo: false },
-  { productId: "p5", storeId: "s1", price: 150, capturedAt: sourceCapturedAt, source: SOURCE, sourceCapturedAt, isPromo: false },
-  { productId: "p1", storeId: "s2", price: 26, capturedAt: sourceCapturedAt, source: SOURCE, sourceCapturedAt, isPromo: false },
-  { productId: "p2", storeId: "s2", price: 42.5, capturedAt: sourceCapturedAt, source: SOURCE, sourceCapturedAt, isPromo: true },
-  { productId: "p3", storeId: "s2", price: 31, capturedAt: sourceCapturedAt, source: SOURCE, sourceCapturedAt, isPromo: false },
-  { productId: "p5", storeId: "s2", price: 145, capturedAt: sourceCapturedAt, source: SOURCE, sourceCapturedAt, isPromo: false }
+  { productId: "p1", storeId: "s1", price: 24.5, capturedAt: SOURCE_CAPTURED_AT, source: SOURCE, sourceCapturedAt: SOURCE_CAPTURED_AT, isPromo: false },
+  { productId: "p2", storeId: "s1", price: 45, capturedAt: SOURCE_CAPTURED_AT, source: SOURCE, sourceCapturedAt: SOURCE_CAPTURED_AT, isPromo: false },
+  { productId: "p3", storeId: "s1", price: 32, capturedAt: SOURCE_CAPTURED_AT, source: SOURCE, sourceCapturedAt: SOURCE_CAPTURED_AT, isPromo: false },
+  { productId: "p5", storeId: "s1", price: 150, capturedAt: SOURCE_CAPTURED_AT, source: SOURCE, sourceCapturedAt: SOURCE_CAPTURED_AT, isPromo: false },
+  { productId: "p1", storeId: "s2", price: 26, capturedAt: SOURCE_CAPTURED_AT, source: SOURCE, sourceCapturedAt: SOURCE_CAPTURED_AT, isPromo: false },
+  { productId: "p2", storeId: "s2", price: 42.5, capturedAt: SOURCE_CAPTURED_AT, source: SOURCE, sourceCapturedAt: SOURCE_CAPTURED_AT, isPromo: true },
+  { productId: "p3", storeId: "s2", price: 31, capturedAt: SOURCE_CAPTURED_AT, source: SOURCE, sourceCapturedAt: SOURCE_CAPTURED_AT, isPromo: false },
+  { productId: "p5", storeId: "s2", price: 145, capturedAt: SOURCE_CAPTURED_AT, source: SOURCE, sourceCapturedAt: SOURCE_CAPTURED_AT, isPromo: false }
 ];
 
 function searchProducts(params: ProviderSearchParams): ProviderProductMatch[] {
@@ -38,7 +38,7 @@ function searchProducts(params: ProviderSearchParams): ProviderProductMatch[] {
         : { ...product, externalUrl: null },
       normalizedKey: normalizedProductKey(product),
       source: SOURCE,
-      sourceCapturedAt
+      sourceCapturedAt: SOURCE_CAPTURED_AT
     }));
 }
 

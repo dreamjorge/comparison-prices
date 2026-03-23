@@ -23,24 +23,24 @@ class NormalizationService:
         label = label.lower().strip()
         
         # Volume
-        if re.search(r'(\d+)\s*(ml|mililitros)', label):
-            match = re.search(r'(\d+)\s*(ml|mililitros)', label)
+        match = re.search(r'(\d+)\s*(ml|mililitros)', label)
+        if match:
             return float(match.group(1)) / 1000.0, "L"
-        if re.search(r'(\d+)\s*(l|litro)', label):
-            match = re.search(r'(\d+)\s*(l|litro)', label)
+        match = re.search(r'(\d+)\s*(l|litro)', label)
+        if match:
             return float(match.group(1)), "L"
-            
+
         # Weight
-        if re.search(r'(\d+)\s*(g|gramos)', label):
-            match = re.search(r'(\d+)\s*(g|gramos)', label)
+        match = re.search(r'(\d+)\s*(g|gramos)', label)
+        if match:
             return float(match.group(1)) / 1000.0, "kg"
-        if re.search(r'(\d+)\s*(kg|kilos|kilogramos)', label):
-            match = re.search(r'(\d+)\s*(kg|kilos|kilogramos)', label)
+        match = re.search(r'(\d+)\s*(kg|kilos|kilogramos)', label)
+        if match:
             return float(match.group(1)), "kg"
-            
+
         # Count
-        if re.search(r'(\d+)\s*(pz|piezas|pzs|unidades)', label):
-            match = re.search(r'(\d+)\s*(pz|piezas|pzs|unidades)', label)
+        match = re.search(r'(\d+)\s*(pz|piezas|pzs|unidades)', label)
+        if match:
             return float(match.group(1)), "pz"
             
         return 1.0, label

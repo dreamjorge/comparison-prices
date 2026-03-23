@@ -1,16 +1,20 @@
-from fastapi import FastAPI, Query, Body, Header, HTTPException
+import os
+from dotenv import load_dotenv
+from fastapi import FastAPI, Query, Body, Header, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import List, Optional
-import uuid
 import base64
 from services.normalization import NormalizationService
 
-app = FastAPI(title="Comparison Prices API", version="0.1.0")
+load_dotenv()
 
-# Security key (Mock for MVP)
-API_KEY = "dummy-dev-key"
+API_KEY = os.environ.get("API_KEY", "")
+if not API_KEY:
+    raise RuntimeError("API_KEY environment variable is required")
+
+app = FastAPI(title="Comparison Prices API", version="0.1.0")
 
 # CORS Configuration - Restricted for production-like safety
 app.add_middleware(
@@ -20,10 +24,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def verify_api_key(x_api_key: str = Header(...)):
+def verify_api_key(x_api_key: str = Header(..., alias="X-API-Key")):
     if x_api_key != API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API Key")
-    return x_api_key
 
 # --- Models (matching openapi.json) ---
 
@@ -117,9 +120,7 @@ for i in range(17, 210):
 # --- Endpoints ---
 
 @app.get("/stores", response_model=StoreListResponse)
-async def list_stores(api_key: str = Header(..., alias="X-API-Key")):
-    if api_key != API_KEY:
-        raise HTTPException(status_code=403, detail="Invalid API Key")
+async def list_stores(_: None = Depends(verify_api_key)):
     return StoreListResponse(stores=MOCK_STORES)
 
 @app.get("/search", response_model=ProductSearchResponse)
@@ -130,11 +131,8 @@ async def search_products(
     lon: Optional[float] = Query(None, description="Longitude for location-based prices"),
     limit: int = Query(20, ge=1, le=100),
     cursor: Optional[str] = None,
-    api_key: str = Header(..., alias="X-API-Key")
+    _: None = Depends(verify_api_key)
 ):
-    if api_key != API_KEY:
-        raise HTTPException(status_code=403, detail="Invalid API Key")
-    
     # Basic filter by query with normalization
     search_q = q.lower().strip()
     results = []
@@ -142,14 +140,14 @@ async def search_products(
         normalized_key = NormalizationService.get_normalized_search_key(p.name, p.brand)
         if search_q in normalized_key:
             results.append(p)
-    
+
     # Cursor pagination (mock)
     start_idx = 0
     if cursor:
         try:
             start_idx = int(base64.b64decode(cursor).decode())
-        except:
-            pass
+        except (ValueError, Exception):
+            pass  # invalid cursor, default to start
             
     paged_results = results[start_idx : start_idx + limit]
     next_cursor = None
@@ -161,10 +159,8 @@ async def search_products(
 @app.post("/list-totals", response_model=ListTotalsResponse)
 async def calculate_list_totals(
     request: ListTotalsRequest = Body(...),
-    api_key: str = Header(..., alias="X-API-Key")
+    _: None = Depends(verify_api_key)
 ):
-    if api_key != API_KEY:
-        raise HTTPException(status_code=403, detail="Invalid API Key")
     # Mock calculation: Walmart is always middle, Chedraui cheapest, Soriana expensive
     totals = []
     base_total = sum(item.quantity * 25.0 for item in request.items) # $25 avg per item
@@ -176,7 +172,7 @@ async def calculate_list_totals(
     return ListTotalsResponse(totals=totals)
 
 @app.get("/price-history", response_model=PriceHistoryResponse)
-async def get_price_history(productId: str, storeId: Optional[str] = None):
+async def get_price_history(productId: str, storeId: Optional[str] = None, _: None = Depends(verify_api_key)):
     # Find product
     product = next((p for p in MOCK_PRODUCTS if p.id == productId), MOCK_PRODUCTS[0])
     
