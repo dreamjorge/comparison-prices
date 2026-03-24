@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, Query, Body, Header, HTTPException, Depends
@@ -6,6 +7,16 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import List, Optional
 import base64
+=======
+import base64
+from datetime import datetime
+from typing import List, Optional
+
+from fastapi import Body, FastAPI, Header, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+>>>>>>> origin/main
 from services.normalization import NormalizationService
 
 load_dotenv()
@@ -110,10 +121,10 @@ categories = ["Lácteos", "Despensa", "Limpieza", "Panadería", "Higiene", "Bebi
 for i in range(17, 210):
     cat = categories[i % len(categories)]
     MOCK_PRODUCTS.append(Product(
-        id=f"p{i}", 
-        name=f"Producto de Prueba {i}", 
-        brand=f"Marca {cat}", 
-        sizeLabel="1kg" if i % 2 == 0 else "500ml", 
+        id=f"p{i}",
+        name=f"Producto de Prueba {i}",
+        brand=f"Marca {cat}",
+        sizeLabel="1kg" if i % 2 == 0 else "500ml",
         category=cat
     ))
 
@@ -133,6 +144,12 @@ async def search_products(
     cursor: Optional[str] = None,
     _: None = Depends(verify_api_key)
 ):
+<<<<<<< HEAD
+=======
+    if api_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API Key")
+
+>>>>>>> origin/main
     # Basic filter by query with normalization
     search_q = q.lower().strip()
     results = []
@@ -146,14 +163,20 @@ async def search_products(
     if cursor:
         try:
             start_idx = int(base64.b64decode(cursor).decode())
+<<<<<<< HEAD
         except (ValueError, Exception):
             pass  # invalid cursor, default to start
             
+=======
+        except Exception:
+            pass
+
+>>>>>>> origin/main
     paged_results = results[start_idx : start_idx + limit]
     next_cursor = None
     if start_idx + limit < len(results):
         next_cursor = base64.b64encode(str(start_idx + limit).encode()).decode()
-        
+
     return ProductSearchResponse(products=paged_results, nextCursor=next_cursor)
 
 @app.post("/list-totals", response_model=ListTotalsResponse)
@@ -164,25 +187,25 @@ async def calculate_list_totals(
     # Mock calculation: Walmart is always middle, Chedraui cheapest, Soriana expensive
     totals = []
     base_total = sum(item.quantity * 25.0 for item in request.items) # $25 avg per item
-    
+
     totals.append(StoreTotal(storeId="1", total=base_total, updatedAt=datetime.now())) # Walmart
     totals.append(StoreTotal(storeId="2", total=base_total * 0.9, savings=base_total * 0.1, updatedAt=datetime.now())) # Chedraui
     totals.append(StoreTotal(storeId="3", total=base_total * 1.1, updatedAt=datetime.now())) # Soriana
-    
+
     return ListTotalsResponse(totals=totals)
 
 @app.get("/price-history", response_model=PriceHistoryResponse)
 async def get_price_history(productId: str, storeId: Optional[str] = None, _: None = Depends(verify_api_key)):
     # Find product
     product = next((p for p in MOCK_PRODUCTS if p.id == productId), MOCK_PRODUCTS[0])
-    
+
     # Generate mock history
     history = [
         PriceHistoryPoint(capturedAt=datetime(2026, 1, 1), price=24.5),
         PriceHistoryPoint(capturedAt=datetime(2026, 1, 15), price=25.0),
         PriceHistoryPoint(capturedAt=datetime(2026, 2, 1), price=24.0, isPromo=True),
     ]
-    
+
     return PriceHistoryResponse(product=product, history=history)
 
 if __name__ == "__main__":
