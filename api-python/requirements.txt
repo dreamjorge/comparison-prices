@@ -2,10 +2,7 @@ fastapi
 uvicorn
 pydantic
 python-dateutil
-<<<<<<< HEAD
 python-dotenv
-=======
 httpx
 pytest
 ruff
->>>>>>> origin/main

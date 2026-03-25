@@ -1,6 +1,7 @@
 import re
 from typing import Optional, Tuple
 
+
 class NormalizationService:
     @staticmethod
     def clean_brand(brand: Optional[str]) -> str:
@@ -19,9 +20,9 @@ class NormalizationService:
         """
         if not label:
             return 1.0, "unit"
-        
+
         label = label.lower().strip()
-        
+
         # Volume
         match = re.search(r'(\d+)\s*(ml|mililitros)', label)
         if match:
@@ -42,7 +43,7 @@ class NormalizationService:
         match = re.search(r'(\d+)\s*(pz|piezas|pzs|unidades)', label)
         if match:
             return float(match.group(1)), "pz"
-            
+
         return 1.0, label
 
     @classmethod

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, Query, Body, Header, HTTPException, Depends
@@ -7,16 +6,6 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import List, Optional
 import base64
-=======
-import base64
-from datetime import datetime
-from typing import List, Optional
-
-from fastapi import Body, FastAPI, Header, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-
->>>>>>> origin/main
 from services.normalization import NormalizationService
 
 load_dotenv()
@@ -144,12 +133,6 @@ async def search_products(
     cursor: Optional[str] = None,
     _: None = Depends(verify_api_key)
 ):
-<<<<<<< HEAD
-=======
-    if api_key != API_KEY:
-        raise HTTPException(status_code=403, detail="Invalid API Key")
-
->>>>>>> origin/main
     # Basic filter by query with normalization
     search_q = q.lower().strip()
     results = []
@@ -163,15 +146,8 @@ async def search_products(
     if cursor:
         try:
             start_idx = int(base64.b64decode(cursor).decode())
-<<<<<<< HEAD
         except (ValueError, Exception):
             pass  # invalid cursor, default to start
-            
-=======
-        except Exception:
-            pass
-
->>>>>>> origin/main
     paged_results = results[start_idx : start_idx + limit]
     next_cursor = None
     if start_idx + limit < len(results):
