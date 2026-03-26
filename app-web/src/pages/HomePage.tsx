@@ -1,16 +1,42 @@
 import { useEffect, useState } from "react";
-import { fetchStores, Store } from "../api/client";
+import { fetchStores, searchProducts, Product, Store } from "../api/client";
 
 export function HomePage() {
   const [stores, setStores] = useState<Store[]>([]);
+  const [searchQuery, setSearchQuery] = useState("leche");
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     fetchStores()
       .then(setStores)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
+  }, []);
+
+  const runSearch = async () => {
+    const query = searchQuery.trim();
+    if (!query) {
+      setProducts([]);
+      return;
+    }
+
+    setSearching(true);
+    try {
+      const results = await searchProducts(query, { includeExternalLinks: true });
+      setProducts(results);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error buscando productos");
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  useEffect(() => {
+    runSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const summaryCards = [
@@ -82,6 +108,45 @@ export function HomePage() {
             ))}
           </div>
         )}
+      </div>
+
+      <div className="card">
+        <h3>Búsqueda con link-out a Google Shopping</h3>
+        <p className="muted">
+          Los precios mostrados en esta app vienen de fuentes internas permitidas.
+          Google Shopping se usa solo como navegación externa de validación.
+        </p>
+        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1rem" }}>
+          <input
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Ejemplo: leche entera 1L"
+            style={{ flex: "1 1 280px", padding: "0.6rem 0.75rem", borderRadius: "8px", border: "1px solid #d2d6e0" }}
+          />
+          <button className="btn-primary" onClick={runSearch} disabled={searching}>
+            {searching ? "Buscando..." : "Buscar"}
+          </button>
+        </div>
+
+        <div style={{ display: "grid", gap: "0.75rem", marginTop: "1rem" }}>
+          {products.map((product) => (
+            <article key={product.id} className="product-item">
+              <div>
+                <strong>{product.name}</strong>
+                <p className="muted small">
+                  Fuente: {(product.sourceHints ?? []).join(", ") || "provider_blend"}
+                </p>
+              </div>
+              {product.externalUrl ? (
+                <a className="btn-secondary" href={product.externalUrl} target="_blank" rel="noreferrer">
+                  Ver en Google Shopping
+                </a>
+              ) : (
+                <span className="small muted">Sin link externo</span>
+              )}
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   );

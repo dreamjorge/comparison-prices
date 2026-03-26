@@ -23,4 +23,12 @@ class SettingsContentTest {
 
     assertTrue(sections.all { it.items.size >= 2 })
   }
+
+  @Test
+  fun `default sections include data source hint`() {
+    val sections = defaultSettingsSections()
+    val alertsSection = sections.first { it.title == "Alertas y precios" }
+
+    assertTrue(alertsSection.items.any { it.title == "Origen de precios" })
+  }
 }

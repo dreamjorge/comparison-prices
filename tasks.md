@@ -95,3 +95,6 @@
 - [ ] TICKET 7.5 — Automatizar ejecución del plan de QA funcional con matriz de dispositivos.
 - [x] TICKET 8.7 — Normalizar brand vacío en UI y repositorios. ✅ **Done: BrandUtils.kt + displayBrand() aplicado en HomeScreen**
 - [x] TICKET 8.8 — Revisar merge de cantidades en deduplicación. ✅ **Done: decisión MIN(id) "first-item wins" documentada en tickets.md**
+- [~] TICKET 11.3 — Integración compliant de fuentes externas + link-out Google Shopping (en progreso: API + contratos + UI listos; faltan pruebas end-to-end).
+- [ ] TICKET 11.4 — Hardening de pruebas y rollout para integración compliant.
+- [ ] TICKET 11.5 — Selección e integración de APIs legales para México (roadmap proveedores).

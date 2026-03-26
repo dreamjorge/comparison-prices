@@ -53,6 +53,41 @@ export const openApiSpec = {
             }
           },
           {
+            "name": "lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "zoneId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeExternalLinks",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
             "name": "limit",
             "in": "query",
             "required": false,
@@ -209,17 +244,34 @@ export const openApiSpec = {
           "category": {
             "type": "string",
             "nullable": true
+          },
+          "externalUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "sourceHints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
           }
         }
       },
       "PriceSnapshot": {
         "type": "object",
         "required": [
+          "productId",
           "storeId",
           "price",
-          "capturedAt"
+          "capturedAt",
+          "source",
+          "sourceCapturedAt"
         ],
         "properties": {
+          "productId": {
+            "type": "string"
+          },
           "storeId": {
             "type": "string"
           },
@@ -228,6 +280,13 @@ export const openApiSpec = {
             "format": "float"
           },
           "capturedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source": {
+            "type": "string"
+          },
+          "sourceCapturedAt": {
             "type": "string",
             "format": "date-time"
           },
@@ -280,6 +339,31 @@ export const openApiSpec = {
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "matchedItems": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "source": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CoverageSummary": {
+        "type": "object",
+        "required": [
+          "matchedItems",
+          "unmatchedItems"
+        ],
+        "properties": {
+          "matchedItems": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unmatchedItems": {
+            "type": "integer",
+            "minimum": 0
           }
         }
       },
@@ -332,7 +416,8 @@ export const openApiSpec = {
       "ListTotalsResponse": {
         "type": "object",
         "required": [
-          "totals"
+          "totals",
+          "coverage"
         ],
         "properties": {
           "totals": {
@@ -340,6 +425,16 @@ export const openApiSpec = {
             "items": {
               "$ref": "#/components/schemas/StoreTotal"
             }
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/CoverageSummary"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
           }
         }
       },

@@ -50,6 +50,41 @@
             }
           },
           {
+            "name": "lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "zoneId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeExternalLinks",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
             "name": "limit",
             "in": "query",
             "required": false,
@@ -154,52 +189,71 @@
         "type": "object",
         "required": ["id", "name", "currency"],
         "properties": {
-          "id": {"type": "string"},
-          "name": {"type": "string"},
-          "logoUrl": {"type": "string", "nullable": true},
-          "currency": {"type": "string", "example": "MXN"},
-          "region": {"type": "string", "nullable": true}
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "logoUrl": { "type": "string", "nullable": true },
+          "currency": { "type": "string", "example": "MXN" },
+          "region": { "type": "string", "nullable": true }
         }
       },
       "Product": {
         "type": "object",
         "required": ["id", "name"],
         "properties": {
-          "id": {"type": "string"},
-          "name": {"type": "string"},
-          "brand": {"type": "string", "nullable": true},
-          "sizeLabel": {"type": "string", "nullable": true},
-          "imageUrl": {"type": "string", "nullable": true},
-          "category": {"type": "string", "nullable": true}
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "brand": { "type": "string", "nullable": true },
+          "sizeLabel": { "type": "string", "nullable": true },
+          "imageUrl": { "type": "string", "nullable": true },
+          "category": { "type": "string", "nullable": true },
+          "externalUrl": { "type": "string", "nullable": true },
+          "sourceHints": {
+            "type": "array",
+            "items": { "type": "string" },
+            "nullable": true
+          }
         }
       },
       "PriceSnapshot": {
         "type": "object",
-        "required": ["storeId", "price", "capturedAt"],
+        "required": ["productId", "storeId", "price", "capturedAt", "source", "sourceCapturedAt"],
         "properties": {
-          "storeId": {"type": "string"},
-          "price": {"type": "number", "format": "float"},
-          "capturedAt": {"type": "string", "format": "date-time"},
-          "isPromo": {"type": "boolean", "default": false}
+          "productId": { "type": "string" },
+          "storeId": { "type": "string" },
+          "price": { "type": "number", "format": "float" },
+          "capturedAt": { "type": "string", "format": "date-time" },
+          "source": { "type": "string" },
+          "sourceCapturedAt": { "type": "string", "format": "date-time" },
+          "isPromo": { "type": "boolean", "default": false }
         }
       },
       "ListItem": {
         "type": "object",
         "required": ["productId", "quantity"],
         "properties": {
-          "productId": {"type": "string"},
-          "quantity": {"type": "number", "format": "float"},
-          "unitLabel": {"type": "string", "nullable": true}
+          "productId": { "type": "string" },
+          "quantity": { "type": "number", "format": "float" },
+          "unitLabel": { "type": "string", "nullable": true }
         }
       },
       "StoreTotal": {
         "type": "object",
         "required": ["storeId", "total"],
         "properties": {
-          "storeId": {"type": "string"},
-          "total": {"type": "number", "format": "float"},
-          "savings": {"type": "number", "format": "float", "nullable": true},
-          "updatedAt": {"type": "string", "format": "date-time", "nullable": true}
+          "storeId": { "type": "string" },
+          "total": { "type": "number", "format": "float" },
+          "savings": { "type": "number", "format": "float", "nullable": true },
+          "updatedAt": { "type": "string", "format": "date-time", "nullable": true },
+          "matchedItems": { "type": "integer", "minimum": 0 },
+          "source": { "type": "string", "nullable": true }
+        }
+      },
+      "CoverageSummary": {
+        "type": "object",
+        "required": ["matchedItems", "unmatchedItems"],
+        "properties": {
+          "matchedItems": { "type": "integer", "minimum": 0 },
+          "unmatchedItems": { "type": "integer", "minimum": 0 }
         }
       },
       "StoreListResponse": {
@@ -208,7 +262,7 @@
         "properties": {
           "stores": {
             "type": "array",
-            "items": {"$ref": "#/components/schemas/Store"}
+            "items": { "$ref": "#/components/schemas/Store" }
           }
         }
       },
@@ -218,9 +272,9 @@
         "properties": {
           "products": {
             "type": "array",
-            "items": {"$ref": "#/components/schemas/Product"}
+            "items": { "$ref": "#/components/schemas/Product" }
           },
-          "nextCursor": {"type": "string", "nullable": true}
+          "nextCursor": { "type": "string", "nullable": true }
         }
       },
       "ListTotalsRequest": {
@@ -229,17 +283,25 @@
         "properties": {
           "items": {
             "type": "array",
-            "items": {"$ref": "#/components/schemas/ListItem"}
+            "items": { "$ref": "#/components/schemas/ListItem" }
           }
         }
       },
       "ListTotalsResponse": {
         "type": "object",
-        "required": ["totals"],
+        "required": ["totals", "coverage"],
         "properties": {
           "totals": {
             "type": "array",
-            "items": {"$ref": "#/components/schemas/StoreTotal"}
+            "items": { "$ref": "#/components/schemas/StoreTotal" }
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/CoverageSummary"
+          },
+          "warnings": {
+            "type": "array",
+            "items": { "type": "string" },
+            "nullable": true
           }
         }
       },
@@ -247,19 +309,19 @@
         "type": "object",
         "required": ["capturedAt", "price"],
         "properties": {
-          "capturedAt": {"type": "string", "format": "date-time"},
-          "price": {"type": "number", "format": "float"},
-          "isPromo": {"type": "boolean", "default": false}
+          "capturedAt": { "type": "string", "format": "date-time" },
+          "price": { "type": "number", "format": "float" },
+          "isPromo": { "type": "boolean", "default": false }
         }
       },
       "PriceHistoryResponse": {
         "type": "object",
         "required": ["product", "history"],
         "properties": {
-          "product": {"$ref": "#/components/schemas/Product"},
+          "product": { "$ref": "#/components/schemas/Product" },
           "history": {
             "type": "array",
-            "items": {"$ref": "#/components/schemas/PriceHistoryPoint"}
+            "items": { "$ref": "#/components/schemas/PriceHistoryPoint" }
           }
         }
       }

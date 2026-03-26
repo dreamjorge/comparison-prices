@@ -2,6 +2,7 @@ fastapi
 uvicorn
 pydantic
 python-dateutil
+python-dotenv
 httpx
 pytest
 ruff
