@@ -18,7 +18,7 @@ Follow this checklist to ensure the application is ready for the Google Play Sto
 
 ## Privacy & Safety
 - [ ] **Privacy Policy**: Hosted URL required.
-- [ ] **Data Safety Section**: Map all collected data (UserPrefs, etc. although mostly local).
+- [ ] **Data Safety Section**: Map all collected data (see `docs/data-safety.md`).
 - [ ] **Ad Declaration**: Declare that the app contains ads.
 
 ## Final QA Pass

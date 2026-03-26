@@ -16,6 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.compareprices.data.local.ProductEntity
 import kotlinx.coroutines.flow.Flow
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddItemDialog(
   onDismiss: () -> Unit,

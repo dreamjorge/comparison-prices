@@ -1,5 +1,6 @@
 package com.compareprices.ui.history
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -7,17 +8,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
-import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottomAxis
-import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStartAxis
-import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
-import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
-import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
-import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,22 +86,8 @@ fun PriceHistoryScreen(
             .fillMaxWidth()
             .height(300.dp)
         ) {
-          val modelProducer = CartesianChartModelProducer.build()
-          modelProducer.tryRunTransaction {
-            lineSeries {
-              series(
-                uiState.snapshots.reversed().map { it.price }
-              )
-            }
-          }
-
-          CartesianChartHost(
-            chart = rememberCartesianChart(
-              rememberLineCartesianLayer(),
-              startAxis = rememberStartAxis(),
-              bottomAxis = rememberBottomAxis()
-            ),
-            modelProducer = modelProducer,
+          PriceHistoryChart(
+            prices = uiState.snapshots.reversed().map { it.price },
             modifier = Modifier
               .fillMaxSize()
               .padding(16.dp)
@@ -129,6 +113,54 @@ fun PriceHistoryScreen(
           }
         }
       }
+    }
+  }
+}
+
+@Composable
+private fun PriceHistoryChart(
+  prices: List<Double>,
+  modifier: Modifier = Modifier
+) {
+  val minPrice = prices.minOrNull() ?: return
+  val maxPrice = prices.maxOrNull() ?: return
+  val range = (maxPrice - minPrice).takeIf { it > 0 } ?: 1.0
+  val lineColor = MaterialTheme.colorScheme.primary
+  val guideColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
+
+  Canvas(modifier = modifier) {
+    if (prices.isEmpty()) return@Canvas
+
+    val stepX = if (prices.size > 1) size.width / (prices.size - 1) else 0f
+    val points = prices.mapIndexed { index, price ->
+      val normalized = ((price - minPrice) / range).toFloat()
+      Offset(x = stepX * index, y = size.height - (normalized * size.height))
+    }
+
+    drawLine(
+      color = guideColor,
+      start = Offset(0f, size.height),
+      end = Offset(size.width, size.height),
+      strokeWidth = 2f
+    )
+
+    val path = Path().apply {
+      points.firstOrNull()?.let { moveTo(it.x, it.y) }
+      points.drop(1).forEach { lineTo(it.x, it.y) }
+    }
+
+    drawPath(
+      path = path,
+      color = lineColor,
+      style = Stroke(width = 4f, cap = StrokeCap.Round)
+    )
+
+    points.forEach { point ->
+      drawCircle(
+        color = lineColor,
+        radius = 6f,
+        center = point
+      )
     }
   }
 }

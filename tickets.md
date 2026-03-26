@@ -519,6 +519,14 @@ Cuando una migración remapea `productId` y deduplica `list_items`, es posible q
 - Definición de estrategia para fusionar cantidades o mantener el comportamiento actual.
 - Actualizar migraciones/tests si se decide fusionar.
 
+**Análisis y decisión (2026-02-08):**
+La estrategia actual (`MIN(id)` = "first-item wins") es correcta para el MVP:
+- En el contexto de seeding demo data, los items duplicados son artefactos de la migración, no data real del usuario.
+- Fusionar cantidades (`SUM(quantity)`) en una migración destructiva podría doblar cantidades si el usuario ya tenía datos correctos.
+- Decisión: **mantener `MIN(id)` como comportamiento predeterminado** para migraciones. Si en Phase 2 se detectan casos reales de fusión necesaria, se agregará una opción de merge explícita en la UI.
+
+**Status:** Done
+
 ---
 
 # 🚀 Phase 2: Scalability & Real Utility
@@ -564,6 +572,13 @@ Cuando una migración remapea `productId` y deduplica `list_items`, es posible q
 **Criterios de Aceptación**:
 - [ ] Gráfica de tendencia en Android.
 - [ ] Recomendación textual (ej: "Suele bajar los martes").
+
+### TICKET 13.2 — Evaluar librería de gráficos para historial de precios
+**Tipo:** Task | **Prioridad:** P2
+**Descripción**: Definir si se mantiene un gráfico nativo simple o se integra una librería externa con soporte de ejes y tooltips.
+**Criterios de Aceptación**:
+- [ ] Documentar pros/contras y tamaño de APK.
+- [ ] Probar al menos una librería con el historial de precios real.
 
 ---
 

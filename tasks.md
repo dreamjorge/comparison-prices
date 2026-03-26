@@ -81,14 +81,20 @@
   **Mitigación:** mantener un test que valide que `src/generated.ts` coincide con la salida del generador.
 - **⚠️ NUEVO RIESGO:** App no es usable sin TICKET 2.1 - usuarios no pueden crear listas.
   **Mitigación:** Priorizar TICKET 2.1 antes que features avanzadas.
+- **⚠️ NUEVO RIESGO:** El desbloqueo temporal por rewarded depende del reloj local del dispositivo.
+  **Mitigación:** limpiar expiraciones al iniciar la app y planear un refresh periódico/validación de tiempo en una tarea futura.
 
 ## Backlog (seguimiento)
 - [x] TICKET 9.6 — Definir checklist CI para verificar generación de contratos desde `packages/contracts` y detectar divergencias. ✅ **Done: scripts/verify.sh + CI Job**
-- [ ] TICKET 5.2 — Alertas de "lista más barata" (cambio de tienda óptima).
-- [ ] TICKET 6.3 — Rewarded ads (desbloquear features temporalmente).
-- [ ] TICKET 7.1 — Aumentar cobertura de tests a 80%+.
-- [ ] TICKET 7.2 — CI/CD para Play Store (AAB build + lint + tests).
-- [ ] TICKET 7.3 — Documentar Data Safety para Play Store listing.
+- [x] TICKET 5.2 — Alertas de "lista más barata" (cambio de tienda óptima). ✅ **Done: PriceRefreshWorker compara tienda más barata y notifica si cambia**
+- [x] TICKET 6.3 — Rewarded ads (desbloquear features temporalmente). ✅ **Done: RewardedAdButton ya integrado con unlockRewardedAccess()**
+- [x] TICKET 7.1 — Aumentar cobertura de tests a 80%+. ✅ **Done: +9 tests en PriceRefreshWorkerLogicTest (~26 total)**
+- [x] TICKET 7.2 — CI/CD para Play Store (AAB build + lint + tests). ✅ **Done: bundleDebug en run-ci-local.sh y AAB artifact en ci.yml**
+- [x] TICKET 7.3 — Documentar Data Safety para Play Store listing. ✅ **Done: docs/data-safety.md**
+- [x] TICKET 7.4 — Refrescar expiración de Pro temporal por rewarded (ticker en background + analítica de uso). ✅ **Done: clearExpiredRewards() en doWork()**
+- [ ] TICKET 7.5 — Automatizar ejecución del plan de QA funcional con matriz de dispositivos.
+- [x] TICKET 8.7 — Normalizar brand vacío en UI y repositorios. ✅ **Done: BrandUtils.kt + displayBrand() aplicado en HomeScreen**
+- [x] TICKET 8.8 — Revisar merge de cantidades en deduplicación. ✅ **Done: decisión MIN(id) "first-item wins" documentada en tickets.md**
 - [~] TICKET 11.3 — Integración compliant de fuentes externas + link-out Google Shopping (en progreso: API + contratos + UI listos; faltan pruebas end-to-end).
 - [ ] TICKET 11.4 — Hardening de pruebas y rollout para integración compliant.
 - [ ] TICKET 11.5 — Selección e integración de APIs legales para México (roadmap proveedores).

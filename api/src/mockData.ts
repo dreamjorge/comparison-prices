@@ -1,9 +1,9 @@
 import { Store, Product, PriceSnapshot } from "../../packages/contracts/src/types";
 
 export const STORES: Store[] = [
-    { id: "s1", name: "Walmart", logoUrl: null, currency: "MXN", region: "Norte" },
-    { id: "s2", name: "Soriana", logoUrl: null, currency: "MXN", region: "Norte" },
-    { id: "s3", name: "Chedraui", logoUrl: null, currency: "MXN", region: "Norte" }
+    { id: "s1", name: "Walmart", logoUrl: null, currency: "MXN", region: "Norte", state: null, municipality: null },
+    { id: "s2", name: "Soriana", logoUrl: null, currency: "MXN", region: "Norte", state: null, municipality: null },
+    { id: "s3", name: "Chedraui", logoUrl: null, currency: "MXN", region: "Norte", state: null, municipality: null }
 ];
 
 export const PRODUCTS: Product[] = [

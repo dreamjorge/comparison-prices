@@ -27,3 +27,4 @@ fi
 "${GRADLE_CMD[@]}" :app:lint
 "${GRADLE_CMD[@]}" :app:test
 "${GRADLE_CMD[@]}" :app:assembleDebug
+"${GRADLE_CMD[@]}" :app:bundleDebug

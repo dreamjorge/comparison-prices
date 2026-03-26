@@ -1,0 +1,28 @@
+services:
+  api:
+    build:
+      context: ./api-python
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api-python:/app
+    environment:
+      - API_KEY=dummy-dev-key
+      - CORS_ORIGINS=http://localhost:4173
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+  # Phase 2: PostgreSQL database (TICKET 11.2)
+  # db:
+  #   image: postgres:16-alpine
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     - POSTGRES_DB=comparison_prices
+  #     - POSTGRES_USER=app
+  #     - POSTGRES_PASSWORD=localdev
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+
+# volumes:
+#   pgdata:
